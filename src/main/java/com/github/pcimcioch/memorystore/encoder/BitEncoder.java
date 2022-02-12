@@ -47,7 +47,7 @@ public abstract class BitEncoder implements Encoder {
     /**
      * Let's say our full record contains four bytes and our data is located on second byte on bits indexed [12, 16]
      * <pre>
-     *      ||<-- 1 byte -->||<-- 12 bits --><-- 5 bits of our data --><-- 15 bits -->||<-- 1 byte -->||<-- 1 byte -->||
+     *      ||&lt;-- 1 byte --&gt;||&lt;-- 12 bits --&gt;&lt;-- 5 bits of our data --&gt;&lt;-- 15 bits --&gt;||&lt;-- 1 byte --&gt;||&lt;-- 1 byte --&gt;||
      *
      *      recordSize = 4
      *      positionInRecord = 1

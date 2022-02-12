@@ -86,6 +86,7 @@ public final class Headers {
      *
      * @param name        name of the header
      * @param elementType enum class
+     * @param <E>         enum type
      * @return new header
      */
     public static <E extends Enum<E>> BitHeader<EnumEncoder<E>> enumType(String name, Class<E> elementType) {
@@ -104,6 +105,7 @@ public final class Headers {
      *
      * @param name        name of the header
      * @param elementType enum class
+     * @param <E>         enum type
      * @return new header
      */
     public static <E extends Enum<E>> BitHeader<EnumEncoder<E>> nullableEnumType(String name, Class<E> elementType) {
@@ -229,6 +231,7 @@ public final class Headers {
      * Store any Object
      *
      * @param name name of the header
+     * @param <T>  object type
      * @return new header
      */
     public static <T> ObjectDirectHeader<T> object(String name) {
@@ -269,6 +272,7 @@ public final class Headers {
      *
      * @param name           name of the header
      * @param poolDefinition pool definition. See {@link #poolOnBits(String, int)} and {@link #poolOfSize(String, long)}
+     * @param <T>            object type
      * @return new header
      */
     public static <T> ObjectPoolHeader<T> objectPool(String name, PoolDefinition poolDefinition) {

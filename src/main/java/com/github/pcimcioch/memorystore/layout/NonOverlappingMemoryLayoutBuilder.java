@@ -4,16 +4,15 @@ import com.github.pcimcioch.memorystore.header.BitHeader;
 
 import java.util.BitSet;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Custom memory layout that can be predefined by the user. It allows to manually define position in memory layout for each header.
  *
  * Example:
  * <pre>
- *     BitHeader<?> header1 = ...;
- *     BitHeader<?> header2 = ...;
- *     BitHeader<?> header3 = ...;
+ *     BitHeader&lt;?&gt; header1 = ...;
+ *     BitHeader&lt;?&gt; header2 = ...;
+ *     BitHeader&lt;?&gt; header3 = ...;
  *
  *     OverlappingMemoryLayoutBuilder builder = new OverlappingMemoryLayoutBuilder(32, 2, Map.of(
  *         header1, new MemoryPosition(0, 0),

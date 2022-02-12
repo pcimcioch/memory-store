@@ -9,9 +9,9 @@ import java.util.Map;
  *
  * Example:
  * <pre>
- *     BitHeader<?> header1 = ...;
- *     BitHeader<?> header2 = ...;
- *     BitHeader<?> header3 = ...;
+ *     BitHeader&lt;?&gt; header1 = ...;
+ *     BitHeader&lt;?&gt; header2 = ...;
+ *     BitHeader&lt;?&gt; header3 = ...;
  *
  *     OverlappingMemoryLayoutBuilder builder = new OverlappingMemoryLayoutBuilder(32, 2, Map.of(
  *         header1, new MemoryPosition(0, 0),
@@ -31,8 +31,8 @@ import java.util.Map;
  *
  * Example:
  * <pre>
- *     BitHeader<?> header1 = ...;
- *     BitHeader<?> header2 = ...;
+ *     BitHeader&lt;?&gt; header1 = ...;
+ *     BitHeader&lt;?&gt; header2 = ...;
  *
  *     OverlappingMemoryLayoutBuilder builder = new OverlappingMemoryLayoutBuilder(32, 1, Map.of(
  *         header1, new MemoryPosition(0, 0),
