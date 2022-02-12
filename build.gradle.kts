@@ -34,7 +34,7 @@ publishing {
 
             pom {
                 name.set("Memory Store")
-                description.set("Library helping to efficiently store structurized data in memory")
+                description.set("Library helping to efficiently store structured data in memory")
                 url.set("https://github.com/pcimcioch/memory-store")
                 licenses {
                     license {

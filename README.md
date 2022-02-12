@@ -162,7 +162,6 @@ public class UserRepository {
 ```
 
 ## Maven Repository
-TODO release
 Library is available in Central Maven Repository
 
 ```xml
