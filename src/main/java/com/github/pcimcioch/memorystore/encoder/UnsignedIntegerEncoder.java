@@ -11,14 +11,12 @@ public class UnsignedIntegerEncoder extends BitEncoder {
     public static final int MAX_LAST_BIT = 32;
 
     private final int maxValue;
-    private final int bitShift;
     private final int mask;
     private final String incorrectValueException;
 
     public UnsignedIntegerEncoder(Config config) {
         super(config);
-        this.maxValue = (1 << config.bitsCount()) - 1;
-        this.bitShift = config.bitShift();
+        this.maxValue = (1 << this.bitsCount) - 1;
 
         this.mask = this.maxValue << this.bitShift;
         this.incorrectValueException = String.format("Value must be between [0, %d]", this.maxValue);

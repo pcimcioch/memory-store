@@ -12,7 +12,6 @@ public class EnumEncoder<E extends Enum<E>> extends BitEncoder {
     public static final int MAX_LAST_BIT = 32;
 
     private final int maxValue;
-    private final int bitShift;
     private final int mask;
     private final String incorrectValueException;
     private final IntToEnumFunction<E> enumFactory;
@@ -32,8 +31,7 @@ public class EnumEncoder<E extends Enum<E>> extends BitEncoder {
     public EnumEncoder(Config config, IntToEnumFunction<E> enumFactory, EnumToIntFunction<E> enumIndexer) {
         super(config);
 
-        this.maxValue = (1 << config.bitsCount()) - 1;
-        this.bitShift = config.bitShift();
+        this.maxValue = (1 << this.bitsCount) - 1;
         this.enumFactory = requireNonNull(enumFactory, "Enum Factory cannot be null");
         this.enumIndexer = requireNonNull(enumIndexer, "Enum Indexer cannot be null");
 

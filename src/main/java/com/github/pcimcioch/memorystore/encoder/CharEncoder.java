@@ -7,13 +7,11 @@ public class CharEncoder extends BitEncoder {
     public static final int BIT_COUNT = 16;
     public static final int MAX_LAST_BIT = 32;
 
-    private final int bitShift;
     private final int mask;
 
     public CharEncoder(Config config) {
         super(config);
-        this.bitShift = config.bitShift();
-        this.mask = 65535 << bitShift;
+        this.mask = 65535 << this.bitShift;
     }
 
     public char get(long position) {

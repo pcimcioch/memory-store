@@ -7,14 +7,12 @@ public class ByteEncoder extends BitEncoder {
     public static final int BIT_COUNT = 8;
     public static final int MAX_LAST_BIT = 32;
 
-    private final int bitShift;
     private final int mask;
 
     public ByteEncoder(Config config) {
         super(config);
 
-        this.bitShift = config.bitShift();
-        this.mask = 255 << bitShift;
+        this.mask = 255 << this.bitShift;
     }
 
     public byte get(long position) {

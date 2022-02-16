@@ -12,19 +12,17 @@ public class SignedIntegerEncoder extends BitEncoder {
 
     private final int minValue;
     private final int maxValue;
-    private final int bitShift;
     private final int mask;
     private final String incorrectValueException;
 
     public SignedIntegerEncoder(Config config, int minValue) {
         super(config);
 
-        long maxValue = (1L << config.bitsCount()) - 1 + minValue;
+        long maxValue = (1L << this.bitsCount) - 1 + minValue;
         this.minValue = minValue;
         this.maxValue = maxValue > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) maxValue;
-        this.bitShift = config.bitShift();
 
-        this.mask = ((1 << config.bitsCount()) - 1) << bitShift;
+        this.mask = ((1 << this.bitsCount) - 1) << this.bitShift;
         this.incorrectValueException = String.format("Value must be between [%d, %d]", this.minValue, this.maxValue);
     }
 

@@ -18,6 +18,7 @@ import static java.util.stream.Collectors.toMap;
  * The layout is not really optimal, as such problem is NP-complete, but it's pretty good estimation that would be
  * optimal in most of the cases
  */
+// TODO make results deterministic
 public class AutomaticMemoryLayoutBuilder implements MemoryLayoutBuilder {
 
     private Words words;

@@ -12,7 +12,7 @@ public class BooleanEncoder extends BitEncoder {
     public BooleanEncoder(Config config) {
         super(config);
 
-        this.mask = 1 << config.bitShift();
+        this.mask = 1 << this.bitShift;
     }
 
     public boolean get(long position) {

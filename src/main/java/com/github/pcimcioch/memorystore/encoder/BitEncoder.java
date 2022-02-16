@@ -11,6 +11,8 @@ public abstract class BitEncoder implements Encoder {
     protected final IntStore store;
     protected final int recordSize;
     protected final int positionInRecord;
+    protected final int bitsCount;
+    protected final int bitShift;
 
     protected BitEncoder(Config config) {
         assertArgument(config.bitsCount() >= minBits() && config.bitsCount() <= maxBits(), "Bits Count outside of defined bounds");
@@ -19,6 +21,24 @@ public abstract class BitEncoder implements Encoder {
         this.store = config.store();
         this.recordSize = config.recordSize();
         this.positionInRecord = config.positionInRecord();
+        this.bitsCount = config.bitsCount();
+        this.bitShift = config.bitShift();
+    }
+
+    public int recordSize() {
+        return recordSize;
+    }
+
+    public int positionInRecord() {
+        return positionInRecord;
+    }
+
+    public int bitsCount() {
+        return bitsCount;
+    }
+
+    public int bitShift() {
+        return bitShift;
     }
 
     protected long storeIndex(long position) {
