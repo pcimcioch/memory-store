@@ -72,7 +72,7 @@ public final class Serializers {
     }
 
     public static <T> ObjectArraySerializer<T> objectArray(Class<T> type, Serializer<T> elementSerializer) {
-        return new ObjectArraySerializer<>(type, elementSerializer);
+        return new ObjectArraySerializer<>(elementSerializer, type);
     }
 
     public static StringSerializer string() {

@@ -1,9 +1,7 @@
 package com.github.pcimcioch.memorystore.persistence.serializer.collection;
 
 import com.github.pcimcioch.memorystore.persistence.serializer.SerializerTestBase;
-import com.github.pcimcioch.memorystore.persistence.serializer.collection.ByteArraySerializer;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
@@ -13,11 +11,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ByteArraySerializerTest extends SerializerTestBase {
 
-    private final ByteArraySerializer testee = new ByteArraySerializer();
-
     @ParameterizedTest
     @MethodSource("arrays")
     void serializing(byte[] array) throws IOException {
+        // given
+        ByteArraySerializer testee = new ByteArraySerializer();
+
         // when
         testee.serialize(encoder(), array);
         byte[] actual = testee.deserialize(decoder());
@@ -26,14 +25,13 @@ class ByteArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    @SuppressWarnings("PrimitiveArrayArgumentToVarargsMethod")
-    public static Stream<Arguments> arrays() {
+    public static Stream<byte[]> arrays() {
         return Stream.of(
-                Arguments.of((byte[]) null),
-                Arguments.of(new byte[]{}),
-                Arguments.of(new byte[]{1}),
-                Arguments.of(new byte[]{-1}),
-                Arguments.of(new byte[]{Byte.MIN_VALUE, -1, 0, 1, Byte.MAX_VALUE})
+                null,
+                new byte[]{},
+                new byte[]{1},
+                new byte[]{-1},
+                new byte[]{Byte.MIN_VALUE, -1, 0, 1, Byte.MAX_VALUE}
         );
     }
 }

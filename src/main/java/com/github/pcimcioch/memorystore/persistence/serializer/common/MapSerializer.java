@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.function.Supplier;
 
-// TODO tests
 public class MapSerializer<K, V> implements Serializer<Map<K, V>> {
 
     private final Serializer<K> keySerializer;

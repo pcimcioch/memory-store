@@ -12,8 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class StringSerializerTest extends SerializerTestBase {
 
-    private final StringSerializer testee = new StringSerializer();
-
     @ParameterizedTest
     @ValueSource(strings = {
             " ",
@@ -24,6 +22,9 @@ class StringSerializerTest extends SerializerTestBase {
     })
     @NullAndEmptySource
     void serializing(String array) throws IOException {
+        // given
+        StringSerializer testee = new StringSerializer();
+
         // when
         testee.serialize(encoder(), array);
         String actual = testee.deserialize(decoder());

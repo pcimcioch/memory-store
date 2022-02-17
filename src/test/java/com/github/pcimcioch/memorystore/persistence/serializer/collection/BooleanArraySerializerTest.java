@@ -1,9 +1,7 @@
 package com.github.pcimcioch.memorystore.persistence.serializer.collection;
 
 import com.github.pcimcioch.memorystore.persistence.serializer.SerializerTestBase;
-import com.github.pcimcioch.memorystore.persistence.serializer.collection.BooleanArraySerializer;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
@@ -13,11 +11,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class BooleanArraySerializerTest extends SerializerTestBase {
 
-    private final BooleanArraySerializer testee = new BooleanArraySerializer();
-
     @ParameterizedTest
     @MethodSource("arrays")
     void serializing(boolean[] array) throws IOException {
+        // given
+        BooleanArraySerializer testee = new BooleanArraySerializer();
+
         // when
         testee.serialize(encoder(), array);
         boolean[] actual = testee.deserialize(decoder());
@@ -26,14 +25,13 @@ class BooleanArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    @SuppressWarnings("PrimitiveArrayArgumentToVarargsMethod")
-    public static Stream<Arguments> arrays() {
+    public static Stream<boolean[]> arrays() {
         return Stream.of(
-                Arguments.of((boolean[]) null),
-                Arguments.of(new boolean[]{}),
-                Arguments.of(new boolean[]{true}),
-                Arguments.of(new boolean[]{false}),
-                Arguments.of(new boolean[]{true, false, false, true})
+                null,
+                new boolean[]{},
+                new boolean[]{true},
+                new boolean[]{false},
+                new boolean[]{true, false, false, true}
         );
     }
 }

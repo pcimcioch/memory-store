@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-// TODO tests
 public class CollectionSerializer<T, K extends Collection<T>> implements Serializer<K> {
 
     private final Serializer<T> elementSerializer;
@@ -22,7 +21,7 @@ public class CollectionSerializer<T, K extends Collection<T>> implements Seriali
     @Override
     public void serialize(DataOutput encoder, K collection) throws IOException {
         if (collection == null) {
-            encoder.write(-1);
+            encoder.writeInt(-1);
         } else {
             encoder.writeInt(collection.size());
             for (T element : collection) {

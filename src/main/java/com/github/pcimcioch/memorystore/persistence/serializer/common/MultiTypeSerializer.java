@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO tests
 public class MultiTypeSerializer<T> implements Serializer<T> {
 
     private final List<TypeMapping<? extends T>> mappings;

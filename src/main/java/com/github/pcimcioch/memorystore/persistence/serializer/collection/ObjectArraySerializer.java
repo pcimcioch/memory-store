@@ -12,7 +12,7 @@ public class ObjectArraySerializer<T> implements Serializer<T[]> {
     private final Class<T> type;
     private final Serializer<T> elementSerializer;
 
-    public ObjectArraySerializer(Class<T> type, Serializer<T> elementSerializer) {
+    public ObjectArraySerializer(Serializer<T> elementSerializer, Class<T> type) {
         this.type = type;
         this.elementSerializer = elementSerializer;
     }
