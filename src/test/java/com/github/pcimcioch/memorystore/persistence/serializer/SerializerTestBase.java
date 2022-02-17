@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 
-abstract class SerializerTestBase {
+public abstract class SerializerTestBase {
 
     private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 

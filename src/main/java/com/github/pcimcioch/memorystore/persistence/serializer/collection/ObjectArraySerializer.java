@@ -1,15 +1,19 @@
-package com.github.pcimcioch.memorystore.persistence.serializer;
+package com.github.pcimcioch.memorystore.persistence.serializer.collection;
+
+import com.github.pcimcioch.memorystore.persistence.serializer.Serializer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.lang.reflect.Array;
 
-// TODO tests
 public class ObjectArraySerializer<T> implements Serializer<T[]> {
 
+    private final Class<T> type;
     private final Serializer<T> elementSerializer;
 
-    public ObjectArraySerializer(Serializer<T> elementSerializer) {
+    public ObjectArraySerializer(Class<T> type, Serializer<T> elementSerializer) {
+        this.type = type;
         this.elementSerializer = elementSerializer;
     }
 
@@ -33,7 +37,7 @@ public class ObjectArraySerializer<T> implements Serializer<T[]> {
             return null;
         }
 
-        T[] objects = (T[]) new Object[length];
+        T[] objects = (T[]) Array.newInstance(type, length);;
         for (int i = 0; i < objects.length; i++) {
             objects[i] = elementSerializer.deserialize(decoder);
         }

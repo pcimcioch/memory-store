@@ -1,6 +1,19 @@
 package com.github.pcimcioch.memorystore.persistence.serializer;
 
-import com.github.pcimcioch.memorystore.persistence.serializer.MultiTypeSerializer.TypeMapping;
+import com.github.pcimcioch.memorystore.persistence.serializer.common.MapSerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.common.MultiTypeSerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.common.MultiTypeSerializer.TypeMapping;
+import com.github.pcimcioch.memorystore.persistence.serializer.collection.BooleanArraySerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.collection.ByteArraySerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.collection.CharArraySerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.collection.DoubleArraySerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.collection.FloatArraySerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.collection.IntArraySerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.collection.LongArraySerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.collection.ObjectArraySerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.collection.ShortArraySerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.collection.CollectionSerializer;
+import com.github.pcimcioch.memorystore.persistence.serializer.common.StringSerializer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,8 +71,8 @@ public final class Serializers {
         return SHORT_ARRAY;
     }
 
-    public static <T> ObjectArraySerializer<T> objectArray(Serializer<T> elementSerializer) {
-        return new ObjectArraySerializer<>(elementSerializer);
+    public static <T> ObjectArraySerializer<T> objectArray(Class<T> type, Serializer<T> elementSerializer) {
+        return new ObjectArraySerializer<>(type, elementSerializer);
     }
 
     public static StringSerializer string() {

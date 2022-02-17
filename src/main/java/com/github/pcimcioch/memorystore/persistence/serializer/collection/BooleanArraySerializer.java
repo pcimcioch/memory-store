@@ -1,4 +1,6 @@
-package com.github.pcimcioch.memorystore.persistence.serializer;
+package com.github.pcimcioch.memorystore.persistence.serializer.collection;
+
+import com.github.pcimcioch.memorystore.persistence.serializer.Serializer;
 
 import java.io.DataInput;
 import java.io.DataOutput;

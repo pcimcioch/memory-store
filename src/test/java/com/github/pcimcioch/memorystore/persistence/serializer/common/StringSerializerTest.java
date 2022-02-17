@@ -1,5 +1,7 @@
-package com.github.pcimcioch.memorystore.persistence.serializer;
+package com.github.pcimcioch.memorystore.persistence.serializer.common;
 
+import com.github.pcimcioch.memorystore.persistence.serializer.SerializerTestBase;
+import com.github.pcimcioch.memorystore.persistence.serializer.common.StringSerializer;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
