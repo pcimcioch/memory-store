@@ -1,6 +1,6 @@
 package com.github.pcimcioch.memorystore.header;
 
-import com.github.pcimcioch.memorystore.BitUtils;
+import com.github.pcimcioch.memorystore.util.Utils;
 import com.github.pcimcioch.memorystore.encoder.BooleanEncoder;
 import com.github.pcimcioch.memorystore.encoder.ByteEncoder;
 import com.github.pcimcioch.memorystore.encoder.CharEncoder;
@@ -16,7 +16,7 @@ import com.github.pcimcioch.memorystore.encoder.SignedIntegerEncoder;
 import com.github.pcimcioch.memorystore.encoder.UnsignedIntegerEncoder;
 import com.github.pcimcioch.memorystore.header.ObjectPoolHeader.PoolDefinition;
 
-import static com.github.pcimcioch.memorystore.BitUtils.assertArgument;
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.enumFactory;
 import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.enumIndexer;
 import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.enumSize;
@@ -134,7 +134,7 @@ public final class Headers {
 
         return new BitHeader<>(
                 name,
-                BitUtils.countBits(enumSize),
+                Utils.countBits(enumSize),
                 EnumEncoder.MAX_LAST_BIT,
                 config -> new EnumEncoder<>(config, enumFactory, enumIndexer)
         );
@@ -214,7 +214,7 @@ public final class Headers {
         long range = (long) maxValue - minValue + 1;
         assertNumberOfValuesInRange(range, SignedIntegerEncoder.MIN_BIT_COUNT, SignedIntegerEncoder.MAX_BIT_COUNT);
 
-        return new BitHeader<>(name, BitUtils.countBits(range), SignedIntegerEncoder.MAX_LAST_BIT, config -> new SignedIntegerEncoder(config, minValue));
+        return new BitHeader<>(name, Utils.countBits(range), SignedIntegerEncoder.MAX_LAST_BIT, config -> new SignedIntegerEncoder(config, minValue));
     }
 
     /**
@@ -262,7 +262,7 @@ public final class Headers {
     public static PoolDefinition poolOfSize(String name, long size) {
         assertNumberOfValuesInRange(size, UnsignedIntegerEncoder.MIN_BIT_COUNT, UnsignedIntegerEncoder.MAX_BIT_COUNT);
 
-        return new PoolDefinition(name, BitUtils.countBits(size));
+        return new PoolDefinition(name, Utils.countBits(size));
     }
 
     /**
@@ -313,7 +313,7 @@ public final class Headers {
         assertValueInRange(maxValue, UnsignedIntegerEncoder.MIN_BIT_COUNT, UnsignedIntegerEncoder.MAX_BIT_COUNT
         );
 
-        return new BitHeader<>(name, BitUtils.countBits((long) maxValue + 1), UnsignedIntegerEncoder.MAX_LAST_BIT, UnsignedIntegerEncoder::new);
+        return new BitHeader<>(name, Utils.countBits((long) maxValue + 1), UnsignedIntegerEncoder.MAX_LAST_BIT, UnsignedIntegerEncoder::new);
     }
 
     private static void assertValueInRange(int maxValue, int minBitCount, int maxBitCount) {

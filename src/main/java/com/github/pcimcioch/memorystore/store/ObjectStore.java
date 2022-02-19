@@ -1,10 +1,10 @@
 package com.github.pcimcioch.memorystore.store;
 
-import com.github.pcimcioch.memorystore.BitUtils;
+import com.github.pcimcioch.memorystore.util.Utils;
 
 import java.util.Arrays;
 
-import static com.github.pcimcioch.memorystore.BitUtils.assertArgument;
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
 @SuppressWarnings("unchecked")
 public class ObjectStore<T> {
@@ -72,8 +72,14 @@ public class ObjectStore<T> {
         return blocks.length;
     }
 
+    // TODO tests
+    public long size() {
+        // TODO implement
+        return 1;
+    }
+
     private static int countBits(int blockSize) {
         assertArgument(blockSize >= 1024 && blockSize <= 33554432, "Block size must be between 1024 and 33554432");
-        return BitUtils.countBits(blockSize);
+        return Utils.countBits(blockSize);
     }
 }

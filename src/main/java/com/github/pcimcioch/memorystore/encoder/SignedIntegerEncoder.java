@@ -2,7 +2,7 @@ package com.github.pcimcioch.memorystore.encoder;
 
 import java.util.Objects;
 
-import static com.github.pcimcioch.memorystore.BitUtils.assertArgument;
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
 public class SignedIntegerEncoder extends BitEncoder {
 

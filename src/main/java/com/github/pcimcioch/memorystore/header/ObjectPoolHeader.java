@@ -5,7 +5,7 @@ import com.github.pcimcioch.memorystore.encoder.UnsignedIntegerEncoder;
 
 import java.util.Objects;
 
-import static com.github.pcimcioch.memorystore.BitUtils.assertArgument;
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 import static com.github.pcimcioch.memorystore.encoder.UnsignedIntegerEncoder.MAX_BIT_COUNT;
 import static com.github.pcimcioch.memorystore.encoder.UnsignedIntegerEncoder.MAX_LAST_BIT;
 import static com.github.pcimcioch.memorystore.encoder.UnsignedIntegerEncoder.MIN_BIT_COUNT;

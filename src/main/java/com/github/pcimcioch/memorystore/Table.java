@@ -14,9 +14,11 @@ import com.github.pcimcioch.memorystore.layout.AutomaticMemoryLayoutBuilder;
 import com.github.pcimcioch.memorystore.layout.MemoryLayoutBuilder;
 import com.github.pcimcioch.memorystore.layout.MemoryLayoutBuilder.MemoryLayout;
 import com.github.pcimcioch.memorystore.layout.MemoryLayoutBuilder.MemoryPosition;
+import com.github.pcimcioch.memorystore.store.DefaultStoreFactory;
 import com.github.pcimcioch.memorystore.store.IntStore;
 import com.github.pcimcioch.memorystore.store.ObjectPoolStore;
 import com.github.pcimcioch.memorystore.store.ObjectStore;
+import com.github.pcimcioch.memorystore.store.StoreFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,7 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.pcimcioch.memorystore.BitUtils.assertArgument;
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 import static java.util.Collections.unmodifiableSet;
 
 /**
@@ -58,9 +60,15 @@ public class Table {
      * @param headers             headers
      */
     public Table(MemoryLayoutBuilder memoryLayoutBuilder, Collection<? extends Header<? extends Encoder>> headers) {
-        this.intStore = initBitEncoders(headers, memoryLayoutBuilder);
-        initObjectEncoders(headers);
-        initObjectPoolEncoders(headers);
+        this(memoryLayoutBuilder, new DefaultStoreFactory(), headers);
+    }
+
+    private Table(MemoryLayoutBuilder memoryLayoutBuilder,
+                  StoreFactory storeFactory,
+                  Collection<? extends Header<? extends Encoder>> headers) {
+        this.intStore = initBitEncoders(headers, memoryLayoutBuilder, storeFactory);
+        initObjectEncoders(headers, storeFactory);
+        initObjectPoolEncoders(headers, storeFactory);
     }
 
     /**
@@ -83,25 +91,15 @@ public class Table {
         return unmodifiableSet(encoders.keySet());
     }
 
-    IntStore intStore() {
-        return intStore;
-    }
-
-    Map<ObjectDirectHeader<?>, ObjectStore<?>> objectStores() {
-        return objectStores;
-    }
-
-    Map<PoolDefinition, ObjectPoolStore<?>> objectPoolStores() {
-        return objectPoolStores;
-    }
-
-    private IntStore initBitEncoders(Collection<? extends Header<? extends Encoder>> allHeaders, MemoryLayoutBuilder memoryLayoutBuilder) {
+    private IntStore initBitEncoders(Collection<? extends Header<? extends Encoder>> allHeaders,
+                                     MemoryLayoutBuilder memoryLayoutBuilder,
+                                     StoreFactory storeFactory) {
         List<BitHeader<?>> headers = filterBitHeaders(allHeaders).collect(Collectors.toList());
         if (headers.isEmpty()) {
             return null;
         }
 
-        IntStore store = new IntStore();
+        IntStore store = storeFactory.buildIntStore();
         MemoryLayout layout = memoryLayoutBuilder.compute(WORD_SIZE, headers);
 
         for (BitHeader<?> header : headers) {
@@ -119,26 +117,28 @@ public class Table {
         return store;
     }
 
-    private void initObjectEncoders(Collection<? extends Header<? extends Encoder>> allHeaders) {
+    private void initObjectEncoders(Collection<? extends Header<? extends Encoder>> allHeaders,
+                                    StoreFactory storeFactory) {
         List<ObjectDirectHeader<?>> headers = filterObjectHeaders(allHeaders).collect(Collectors.toList());
         if (headers.isEmpty()) {
             return;
         }
 
         for (ObjectDirectHeader<?> header : headers) {
-            ObjectStore<?> store = addObjectStore(header);
+            ObjectStore<?> store = addObjectStore(header, storeFactory);
             addEncoder(header, new ObjectDirectEncoder<>(store));
         }
     }
 
-    private void initObjectPoolEncoders(Collection<? extends Header<? extends Encoder>> allHeaders) {
+    private void initObjectPoolEncoders(Collection<? extends Header<? extends Encoder>> allHeaders,
+                                        StoreFactory storeFactory) {
         List<ObjectPoolHeader<?>> headers = filterObjectPoolHeaders(allHeaders).collect(Collectors.toList());
         if (headers.isEmpty()) {
             return;
         }
 
         for (ObjectPoolHeader<?> header : headers) {
-            ObjectPoolStore<?> store = addObjectPoolStore(header.poolDefinition());
+            ObjectPoolStore<?> store = addObjectPoolStore(header.poolDefinition(), storeFactory);
             UnsignedIntegerEncoder indexEncoder = encoderFor(header.poolIndexHeader());
 
             addEncoder(header, new ObjectPoolEncoder<>(store, indexEncoder));
@@ -153,14 +153,15 @@ public class Table {
         encoders.put(header, encoder);
     }
 
-    private ObjectStore<?> addObjectStore(ObjectDirectHeader<?> header) {
-        ObjectStore<?> store = new ObjectStore<>();
+    private ObjectStore<?> addObjectStore(ObjectDirectHeader<?> header, StoreFactory storeFactory) {
+        ObjectStore<?> store = storeFactory.buildObjectStore(header);
+        assertArgument(store != null, "Missing object store for header named %s", header.name());
         objectStores.put(header, store);
 
         return store;
     }
 
-    private ObjectPoolStore<?> addObjectPoolStore(PoolDefinition poolDefinition) {
+    private ObjectPoolStore<?> addObjectPoolStore(PoolDefinition poolDefinition, StoreFactory storeFactory) {
         ObjectPoolStore<?> store = objectPoolStores.get(poolDefinition);
         if (store != null) {
             return store;
@@ -170,7 +171,8 @@ public class Table {
                 .map(PoolDefinition::name)
                 .forEach(poolName -> assertArgument(!poolDefinition.name().equals(poolName), "Duplicated pool name %s", poolName));
 
-        store = new ObjectPoolStore<>();
+        store = storeFactory.buildObjectPoolStore(poolDefinition);
+        assertArgument(store != null, "Missing pool store for pool named %s", poolDefinition.name());
         objectPoolStores.put(poolDefinition, store);
 
         return store;
@@ -195,5 +197,34 @@ public class Table {
         return allHeaders.stream()
                 .filter(ObjectPoolHeader.class::isInstance)
                 .map(ObjectPoolHeader.class::cast);
+    }
+
+    /**
+     * By implementing this interface you can get access to the internal Table state, that we don't want to normally
+     * make public
+     */
+    public static abstract class Accessor {
+
+        protected IntStore intStore(Table table) {
+            return table.intStore;
+        }
+
+        protected Map<ObjectDirectHeader<?>, ObjectStore<?>> objectStores(Table table) {
+            return table.objectStores;
+        }
+
+        protected Map<PoolDefinition, ObjectPoolStore<?>> objectPoolStores(Table table) {
+            return table.objectPoolStores;
+        }
+
+        protected Map<Header<? extends Encoder>, Encoder> encoders(Table table) {
+            return table.encoders;
+        }
+
+        protected Table buildTable(MemoryLayoutBuilder memoryLayoutBuilder,
+                                   StoreFactory storeFactory,
+                                   Collection<? extends Header<? extends Encoder>> headers) {
+            return new Table(memoryLayoutBuilder, storeFactory, headers);
+        }
     }
 }

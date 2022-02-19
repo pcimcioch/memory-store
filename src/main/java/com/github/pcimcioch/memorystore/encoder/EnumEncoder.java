@@ -2,7 +2,7 @@ package com.github.pcimcioch.memorystore.encoder;
 
 import java.util.Objects;
 
-import static com.github.pcimcioch.memorystore.BitUtils.assertArgument;
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 import static java.util.Objects.requireNonNull;
 
 public class EnumEncoder<E extends Enum<E>> extends BitEncoder {

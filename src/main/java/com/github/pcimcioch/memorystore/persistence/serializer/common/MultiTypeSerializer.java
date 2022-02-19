@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
+
 public class MultiTypeSerializer<T> implements Serializer<T> {
 
     private final List<TypeMapping<? extends T>> mappings;
@@ -27,10 +29,7 @@ public class MultiTypeSerializer<T> implements Serializer<T> {
     }
 
     public MultiTypeSerializer(List<TypeMapping<? extends T>> mappings) {
-        if (mappings.size() > 255) {
-            throw new IllegalArgumentException("Too many mappings. This serializer supports up to 255 mappings");
-        }
-
+        assertArgument(mappings.size() < 256, "Too many mappings. This serializer supports up to 255 mappings");
         this.mappings = new ArrayList<>(mappings);
     }
 
@@ -41,9 +40,6 @@ public class MultiTypeSerializer<T> implements Serializer<T> {
             encoder.writeByte(0);
         } else {
             int index = getMappingIndex(object.getClass());
-            if (index == -1) {
-                throw new IllegalArgumentException("Class " + object.getClass() + " not supported");
-            }
             encoder.writeByte(index + 1);
 
             TypeMapping mapping = mappings.get(index);
@@ -69,6 +65,6 @@ public class MultiTypeSerializer<T> implements Serializer<T> {
             }
         }
 
-        return -1;
+        throw new IllegalArgumentException("Class " + type + " not supported");
     }
 }

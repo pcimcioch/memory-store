@@ -36,7 +36,7 @@ import static com.github.pcimcioch.memorystore.header.Headers.short16;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-class TableTest {
+class TableTest extends Table.Accessor {
 
     @Test
     void tableStoreHeaders() {
@@ -281,22 +281,22 @@ class TableTest {
         }
     }
 
-    private static void assertIntStore(Table table, int... values) {
-        IntStore store = table.intStore();
+    private void assertIntStore(Table table, int... values) {
+        IntStore store = intStore(table);
         for (int i = 0; i < values.length; i++) {
             assertThat(store.getInt(i)).isEqualTo(values[i]);
         }
     }
 
-    private static void assertObjectStore(Table testee, ObjectDirectHeader<?> header, Object... values) {
-        ObjectStore<?> store = testee.objectStores().get(header);
+    private void assertObjectStore(Table testee, ObjectDirectHeader<?> header, Object... values) {
+        ObjectStore<?> store = objectStores(testee).get(header);
         for (int i = 0; i < values.length; i++) {
             assertThat(store.get(i)).isSameAs(values[i]);
         }
     }
 
-    private static void assertObjectPoolStore(Table testee, ObjectPoolHeader<?> header, Object... values) {
-        ObjectPoolStore<?> store = testee.objectPoolStores().get(header.poolDefinition());
+    private void assertObjectPoolStore(Table testee, ObjectPoolHeader<?> header, Object... values) {
+        ObjectPoolStore<?> store = objectPoolStores(testee).get(header.poolDefinition());
         assertThat(store.elementsCount()).isEqualTo(values.length);
         for (int i = 0; i < values.length; i++) {
             assertThat(store.get(i)).isSameAs(values[i]);

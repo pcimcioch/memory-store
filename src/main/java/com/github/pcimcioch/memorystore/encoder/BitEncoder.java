@@ -4,7 +4,7 @@ import com.github.pcimcioch.memorystore.store.IntStore;
 
 import java.util.Objects;
 
-import static com.github.pcimcioch.memorystore.BitUtils.assertArgument;
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
 public abstract class BitEncoder implements Encoder {
 

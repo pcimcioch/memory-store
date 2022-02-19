@@ -6,19 +6,29 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
 public class MapSerializer<K, V> implements Serializer<Map<K, V>> {
 
     private final Serializer<K> keySerializer;
-    private final Serializer<V> valueSerializer;
+    private final Function<K, Serializer<V>> valueSerializerProvider;
     private final Supplier<? extends Map<K, V>> mapFactory;
 
     public MapSerializer(Serializer<K> keySerializer,
                          Serializer<V> valueSerializer,
                          Supplier<? extends Map<K, V>> mapFactory) {
+        this(keySerializer, k -> valueSerializer, mapFactory);
+    }
+
+    // TODO tests
+    public MapSerializer(Serializer<K> keySerializer,
+                         Function<K, Serializer<V>> valueSerializerProvider,
+                         Supplier<? extends Map<K, V>> mapFactory) {
         this.keySerializer = keySerializer;
-        this.valueSerializer = valueSerializer;
+        this.valueSerializerProvider = valueSerializerProvider;
         this.mapFactory = mapFactory;
     }
 
@@ -30,7 +40,7 @@ public class MapSerializer<K, V> implements Serializer<Map<K, V>> {
             encoder.writeInt(map.size());
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 keySerializer.serialize(encoder, entry.getKey());
-                valueSerializer.serialize(encoder, entry.getValue());
+                valueSerializer(entry.getKey()).serialize(encoder, entry.getValue());
             }
         }
     }
@@ -44,11 +54,17 @@ public class MapSerializer<K, V> implements Serializer<Map<K, V>> {
 
         Map<K, V> map = mapFactory.get();
         for (int i = 0; i < length; i++) {
-            map.put(
-                    keySerializer.deserialize(decoder),
-                    valueSerializer.deserialize(decoder)
-            );
+            K key = keySerializer.deserialize(decoder);
+            V value = valueSerializer(key).deserialize(decoder);
+            map.put(key, value);
         }
         return map;
+    }
+
+    private Serializer<V> valueSerializer(K key) {
+        Serializer<V> serializer = valueSerializerProvider.apply(key);
+        assertArgument(serializer != null, "Missing value serializer for key %s", key);
+
+        return serializer;
     }
 }

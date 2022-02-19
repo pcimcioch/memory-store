@@ -5,7 +5,7 @@ import com.github.pcimcioch.memorystore.encoder.BitEncoder;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.github.pcimcioch.memorystore.BitUtils.assertArgument;
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 import static java.util.Objects.requireNonNull;
 
 public class BitHeader<T extends BitEncoder> extends Header<T> {

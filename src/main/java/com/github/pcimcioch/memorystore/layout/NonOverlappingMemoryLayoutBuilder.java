@@ -1,9 +1,12 @@
 package com.github.pcimcioch.memorystore.layout;
 
 import com.github.pcimcioch.memorystore.header.BitHeader;
+import com.github.pcimcioch.memorystore.util.Utils;
 
 import java.util.BitSet;
 import java.util.Map;
+
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
 /**
  * Custom memory layout that can be predefined by the user. It allows to manually define position in memory layout for each header.
@@ -87,10 +90,10 @@ public class NonOverlappingMemoryLayoutBuilder extends CustomMemoryLayoutBuilder
         private void setBitsTaken(int positionInRecord, int bitShift, int bitsCount) {
             for (int i = 0; i < bitsCount; i++) {
                 int bit = bitShift + i;
-                if (words[positionInRecord].get(bit)) {
-                    throw new IllegalArgumentException("Incorrect configuration. Headers are overlapping");
-                }
-                words[positionInRecord].set(bit);
+                BitSet word = words[positionInRecord];
+
+                assertArgument(!word.get(bit), "Incorrect configuration. Headers are overlapping");
+                word.set(bit);
             }
         }
     }

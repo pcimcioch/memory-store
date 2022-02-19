@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.github.pcimcioch.memorystore.BitUtils.assertArgument;
+import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
 /**
  * Base class for Memory Layouts that can be completely customized by the user.
@@ -59,6 +59,7 @@ public abstract class CustomMemoryLayoutBuilder implements MemoryLayoutBuilder {
 
     private MemoryPosition findMemoryPosition(BitHeader<?> header) {
         MemoryPosition memoryPosition = headerMemoryPositions.get(header);
+        // TODO move this check up to Table
         assertArgument(memoryPosition != null, "Cannot find Memory Position for header %s", header.name());
 
         return memoryPosition;

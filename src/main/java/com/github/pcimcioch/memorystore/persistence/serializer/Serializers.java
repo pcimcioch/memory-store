@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 // TODO javadocs
@@ -105,6 +106,17 @@ public final class Serializers {
                                                    Serializer<V> valueSerializer,
                                                    Supplier<? extends Map<K, V>> mapFactory) {
         return new MapSerializer<>(keySerializer, valueSerializer, mapFactory);
+    }
+
+    public static <K, V> MapSerializer<K, V> mapOf(Serializer<K> keySerializer,
+                                                   Function<K, Serializer<V>> valueSerializerProvider) {
+        return new MapSerializer<>(keySerializer, valueSerializerProvider, HashMap::new);
+    }
+
+    public static <K, V> MapSerializer<K, V> mapOf(Serializer<K> keySerializer,
+                                                   Function<K, Serializer<V>> valueSerializerProvider,
+                                                   Supplier<? extends Map<K, V>> mapFactory) {
+        return new MapSerializer<>(keySerializer, valueSerializerProvider, mapFactory);
     }
 
     public static <T> TypeMapping<T> mapping(Class<T> type, Serializer<T> serializer) {

@@ -24,4 +24,9 @@ public class ObjectPoolStore<T> {
     public int elementsCount() {
         return elements.size();
     }
+
+    // TODO tests
+    public int size() {
+        return elements.size();
+    }
 }
