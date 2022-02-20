@@ -25,7 +25,7 @@ class ShortArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    public static Stream<short[]> arrays() {
+    private static Stream<short[]> arrays() {
         return Stream.of(
                 null,
                 new short[]{},

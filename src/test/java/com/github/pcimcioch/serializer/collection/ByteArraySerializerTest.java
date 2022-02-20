@@ -25,7 +25,7 @@ class ByteArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    public static Stream<byte[]> arrays() {
+    private static Stream<byte[]> arrays() {
         return Stream.of(
                 null,
                 new byte[]{},

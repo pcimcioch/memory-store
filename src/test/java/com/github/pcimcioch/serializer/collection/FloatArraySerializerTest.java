@@ -25,7 +25,7 @@ class FloatArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    public static Stream<float[]> arrays() {
+    private static Stream<float[]> arrays() {
         return Stream.of(
                 null,
                 new float[]{},

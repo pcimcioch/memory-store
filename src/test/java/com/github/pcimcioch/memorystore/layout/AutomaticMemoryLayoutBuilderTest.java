@@ -32,7 +32,9 @@ class AutomaticMemoryLayoutBuilderTest {
         Throwable thrown = catchThrowable(() -> testee.compute(wordSize, headers));
 
         // then
-        assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Header header1 cannot be fitted into memory layout");
     }
 
     private static Stream<Arguments> incorrectHeaderValues() {

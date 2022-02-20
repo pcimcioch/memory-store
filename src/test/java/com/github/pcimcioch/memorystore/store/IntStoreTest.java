@@ -20,7 +20,9 @@ class IntStoreTest {
         Throwable thrown = catchThrowable(() -> new IntStore(minBlockSize));
 
         // then
-        assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Block size must be between 1024 (1KB) and 33554432 (32MB)");
     }
 
     @ParameterizedTest
@@ -219,7 +221,7 @@ class IntStoreTest {
         assertThat(size).isEqualTo(expectedSize);
     }
 
-    public static Stream<Arguments> sizes() {
+    private static Stream<Arguments> sizes() {
         return Stream.of(
                 Arguments.of(0, 1024),
                 Arguments.of(1023, 1024),

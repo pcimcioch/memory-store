@@ -129,26 +129,6 @@ class NonOverlappingMemoryLayoutBuilderTest {
                 .hasMessage("This memory layout supports 32 word size, but 24 requested");
     }
 
-    @Test
-    void missingHeader() {
-        // given
-        BitHeader<TestEncoder> header1 = header("header1", 32, 32);
-        BitHeader<TestEncoder> header2 = header("header2", 32, 32);
-        BitHeader<TestEncoder> header3 = header("header3", 32, 32);
-        NonOverlappingMemoryLayoutBuilder testee = new NonOverlappingMemoryLayoutBuilder(32, 8, Map.of(
-                header1, position(0, 0),
-                header2, position(1, 0)
-        ));
-
-        // when
-        Throwable thrown = catchThrowable(() -> testee.compute(32, List.of(header1, header3)));
-
-        // then
-        assertThat(thrown)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Cannot find Memory Position for header header3");
-    }
-
     @ParameterizedTest
     @MethodSource("correctPositionValues")
     void correctPositions(int wordSize, int recordSize, Map<? extends BitHeader<?>, MemoryPosition> positions) {

@@ -5,20 +5,18 @@ import com.github.pcimcioch.memorystore.header.BitHeader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
 /**
  * Base class for Memory Layouts that can be completely customized by the user.
- *
+ * <p>
  * It simply stores predefined header to memory position map.
- *
+ * <p>
  * It does two validations when creating:
  * - check whether given header at given position will not violate record size
  * - check whether given header at given position will not violate its own max last bit
- *
+ * <p>
  * All additional validations must be done by in the constructors of child classes
  */
 public abstract class CustomMemoryLayoutBuilder implements MemoryLayoutBuilder {
@@ -49,20 +47,13 @@ public abstract class CustomMemoryLayoutBuilder implements MemoryLayoutBuilder {
         assertArgument(this.wordSize == wordSize, "This memory layout supports %d word size, but %d requested", this.wordSize, wordSize);
 
         Map<BitHeader<?>, MemoryPosition> memoryPositions = headers.stream()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        this::findMemoryPosition
-                ));
+                .collect(
+                        HashMap::new,
+                        (m, v) -> m.put(v, headerMemoryPositions.get(v)),
+                        HashMap::putAll
+                );
 
         return new MemoryLayout(recordSize, memoryPositions);
-    }
-
-    private MemoryPosition findMemoryPosition(BitHeader<?> header) {
-        MemoryPosition memoryPosition = headerMemoryPositions.get(header);
-        // TODO move this check up to Table
-        assertArgument(memoryPosition != null, "Cannot find Memory Position for header %s", header.name());
-
-        return memoryPosition;
     }
 
     private void validatePosition(BitHeader<?> header, MemoryPosition memoryPosition) {

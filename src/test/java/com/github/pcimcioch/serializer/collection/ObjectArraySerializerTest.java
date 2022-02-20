@@ -27,7 +27,7 @@ class ObjectArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    public static Stream<Arguments> arrays() {
+    private static Stream<Arguments> arrays() {
         return Stream.of(
                 Arguments.of((Object) null),
                 Arguments.of((Object) new String[]{}),

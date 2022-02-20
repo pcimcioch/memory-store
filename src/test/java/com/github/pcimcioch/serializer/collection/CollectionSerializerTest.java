@@ -28,7 +28,7 @@ class CollectionSerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(collection);
     }
 
-    public static Stream<List<String>> collections() {
+    private static Stream<List<String>> collections() {
         return Stream.of(
                 null,
                 List.of(),

@@ -21,7 +21,6 @@ public class MapSerializer<K, V> implements Serializer<Map<K, V>> {
         this(keySerializer, k -> valueSerializer, mapFactory);
     }
 
-    // TODO tests
     public MapSerializer(Serializer<K> keySerializer,
                          Function<K, Serializer<V>> valueSerializerProvider,
                          Supplier<? extends Map<K, V>> mapFactory) {

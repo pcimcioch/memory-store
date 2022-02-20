@@ -25,7 +25,7 @@ class IntArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    public static Stream<int[]> arrays() {
+    private static Stream<int[]> arrays() {
         return Stream.of(
                 null,
                 new int[]{},

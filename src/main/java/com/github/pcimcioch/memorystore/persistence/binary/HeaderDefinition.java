@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import static com.github.pcimcioch.serializer.Serializers.multiTypeOf;
 import static com.github.pcimcioch.serializer.Serializers.string;
 
-// TODO add tests
 abstract class HeaderDefinition {
 
     static final MultiTypeSerializer<HeaderDefinition> SERIALIZER = multiTypeOf(List.of(

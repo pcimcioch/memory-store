@@ -11,8 +11,8 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
@@ -23,7 +23,8 @@ import static com.github.pcimcioch.serializer.Serializers.string;
 class LoaderMemoryLayout implements MemoryLayoutBuilder {
 
     private static final int WORD_SIZE = 32;
-    private static final LoaderMemoryLayoutSerializer SERIALIZER = new LoaderMemoryLayoutSerializer();
+
+    static final LoaderMemoryLayoutSerializer SERIALIZER = new LoaderMemoryLayoutSerializer();
 
     private final int recordSize;
     private final Map<String, MemoryPosition> headerMemoryPositions;
@@ -37,29 +38,18 @@ class LoaderMemoryLayout implements MemoryLayoutBuilder {
         this.headerMemoryPositions = headerMemoryPositions;
     }
 
-    static LoaderMemoryLayoutSerializer serializer() {
-        return SERIALIZER;
-    }
-
     @Override
     public MemoryLayout compute(int wordSize, Collection<? extends BitHeader<?>> headers) {
         assertArgument(WORD_SIZE == wordSize, "This memory layout supports %d word size, but %d requested", WORD_SIZE, wordSize);
 
         Map<BitHeader<?>, MemoryPosition> memoryPositions = headers.stream()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        this::findMemoryPosition
-                ));
+                .collect(
+                        HashMap::new,
+                        (m, v) -> m.put(v, headerMemoryPositions.get(v.name())),
+                        HashMap::putAll
+                );
 
         return new MemoryLayout(recordSize, memoryPositions);
-    }
-
-    private MemoryPosition findMemoryPosition(BitHeader<?> header) {
-        MemoryPosition memoryPosition = headerMemoryPositions.get(header.name());
-        // TODO move this check up to Table
-        assertArgument(memoryPosition != null, "Cannot find Memory Position for header %s", header.name());
-
-        return memoryPosition;
     }
 
     private static int recordSize(Map<Header<? extends Encoder>, Encoder> encoders) {

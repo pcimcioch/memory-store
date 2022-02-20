@@ -6,7 +6,6 @@ import com.github.pcimcioch.memorystore.header.Header;
 import com.github.pcimcioch.memorystore.header.ObjectDirectHeader;
 import com.github.pcimcioch.memorystore.persistence.binary.LoaderMemoryLayout.LoaderMemoryLayoutSerializer;
 import com.github.pcimcioch.memorystore.persistence.binary.StoreSerializers.IntStoreSerializer;
-import com.github.pcimcioch.memorystore.store.IntStore;
 import com.github.pcimcioch.memorystore.store.ObjectPoolStore;
 import com.github.pcimcioch.memorystore.store.ObjectStore;
 import com.github.pcimcioch.memorystore.store.StoreFactory;
@@ -29,6 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import static com.github.pcimcioch.memorystore.header.ObjectPoolHeader.PoolDefinition;
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
@@ -62,7 +64,7 @@ public class BinaryPersistence extends Table.Accessor {
         );
 
         this.headersSerializer = Serializers.setOf(HeaderDefinition.SERIALIZER);
-        this.memoryLayoutSerializer = LoaderMemoryLayout.serializer();
+        this.memoryLayoutSerializer = LoaderMemoryLayout.SERIALIZER;
         this.intStoreSerializer = StoreSerializers.intStore();
         this.objectStoresSerializer = Serializers.mapOf(Serializers.string(), objectStoreSerializers::get);
         this.poolStoresSerializer = Serializers.mapOf(Serializers.string(), poolStoreSerializers::get);
@@ -77,6 +79,27 @@ public class BinaryPersistence extends Table.Accessor {
     public Table load(Path path, Collection<? extends Header<? extends Encoder>> headers) throws IOException {
         try (DataInputStream input = new DataInputStream(new BufferedInputStream(Files.newInputStream(path)))) {
             return load(input, headers);
+        }
+    }
+
+    public void saveCompressed(Path path, Table table) throws IOException {
+        try (ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(path)))) {
+            zipStream.putNextEntry(new ZipEntry("table"));
+            try (DataOutputStream output = new DataOutputStream(zipStream)) {
+                save(output, table);
+            }
+        }
+    }
+
+    public Table loadCompressed(Path path, Collection<? extends Header<? extends Encoder>> headers) throws IOException {
+        try (ZipInputStream zipStream = new ZipInputStream(new BufferedInputStream(Files.newInputStream(path)))) {
+            ZipEntry entry = zipStream.getNextEntry();
+            if (entry == null) {
+                throw new IOException("Missing entry in zip file");
+            }
+            try (DataInputStream input = new DataInputStream(zipStream)) {
+                return load(input, headers);
+            }
         }
     }
 

@@ -25,7 +25,7 @@ class DoubleArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    public static Stream<double[]> arrays() {
+    private static Stream<double[]> arrays() {
         return Stream.of(
                 null,
                 new double[]{},

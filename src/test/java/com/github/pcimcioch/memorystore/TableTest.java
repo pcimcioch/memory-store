@@ -273,6 +273,25 @@ class TableTest extends Table.Accessor {
                 .hasMessage("Duplicated header name header");
     }
 
+    @Test
+    void missingHeader() {
+        // given
+        MemoryLayoutBuilder memoryLayout = new NonOverlappingMemoryLayoutBuilder(1, Map.of(
+                int32("header1"), new MemoryPosition(0, 0)
+        ));
+
+        // when
+        Throwable thrown = catchThrowable(() -> new Table(memoryLayout, List.of(
+                int32("header1"),
+                long64("header2")
+        )));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Cannot find Memory Position for header header2");
+    }
+
     @SafeVarargs
     private static void assertHeaders(Table table, Header<? extends Encoder>... headers) {
         assertThat(table.headers()).isEqualTo(Set.of(headers));

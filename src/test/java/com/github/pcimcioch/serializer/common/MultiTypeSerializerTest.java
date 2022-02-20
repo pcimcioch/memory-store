@@ -37,7 +37,7 @@ class MultiTypeSerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(value);
     }
 
-    public static Stream<Object> values() {
+    private static Stream<Object> values() {
         return Stream.of(
                 null,
                 "some string",
@@ -57,7 +57,9 @@ class MultiTypeSerializerTest extends SerializerTestBase {
         Throwable thrown = catchThrowable(() -> testee.serialize(encoder(), new Object()));
 
         // then
-        assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Class class java.lang.Object not supported");
     }
 
     @Test
@@ -71,7 +73,9 @@ class MultiTypeSerializerTest extends SerializerTestBase {
         Throwable thrown = catchThrowable(() -> testee.serialize(encoder(), "test"));
 
         // then
-        assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Class class java.lang.String not supported");
     }
 
     @SuppressWarnings("unchecked")

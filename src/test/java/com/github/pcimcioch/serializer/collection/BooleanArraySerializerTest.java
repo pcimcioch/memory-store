@@ -25,7 +25,7 @@ class BooleanArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    public static Stream<boolean[]> arrays() {
+    private static Stream<boolean[]> arrays() {
         return Stream.of(
                 null,
                 new boolean[]{},

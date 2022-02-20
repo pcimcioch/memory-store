@@ -104,6 +104,7 @@ public class Table {
 
         for (BitHeader<?> header : headers) {
             MemoryPosition memoryPosition = layout.memoryPositionFor(header);
+            assertArgument(memoryPosition != null, "Cannot find Memory Position for header %s", header.name());
             BitEncoder.Config config = new BitEncoder.Config(
                     store,
                     layout.recordSize(),

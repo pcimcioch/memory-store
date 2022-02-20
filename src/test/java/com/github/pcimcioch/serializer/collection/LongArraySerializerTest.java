@@ -25,7 +25,7 @@ class LongArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    public static Stream<long[]> arrays() {
+    private static Stream<long[]> arrays() {
         return Stream.of(
                 null,
                 new long[]{},

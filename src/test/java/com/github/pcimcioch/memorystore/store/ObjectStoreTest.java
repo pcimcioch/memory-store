@@ -21,7 +21,9 @@ class ObjectStoreTest {
         Throwable thrown = catchThrowable(() -> new ObjectStore<String>(minBlockSize));
 
         // then
-        assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Block size must be between 1024 and 33554432");
     }
 
     @ParameterizedTest
@@ -162,7 +164,7 @@ class ObjectStoreTest {
         assertThat(size).isEqualTo(expectedSize);
     }
 
-    public static Stream<Arguments> sizes() {
+    private static Stream<Arguments> sizes() {
         return Stream.of(
                 Arguments.of(0, 1024),
                 Arguments.of(1023, 1024),

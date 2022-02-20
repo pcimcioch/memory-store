@@ -25,7 +25,7 @@ class CharArraySerializerTest extends SerializerTestBase {
         assertThat(actual).isEqualTo(array);
     }
 
-    public static Stream<char[]> arrays() {
+    private static Stream<char[]> arrays() {
         return Stream.of(
                 null,
                 new char[]{},
