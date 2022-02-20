@@ -297,7 +297,7 @@ class TableTest extends Table.Accessor {
 
     private void assertObjectPoolStore(Table testee, ObjectPoolHeader<?> header, Object... values) {
         ObjectPoolStore<?> store = objectPoolStores(testee).get(header.poolDefinition());
-        assertThat(store.elementsCount()).isEqualTo(values.length);
+        assertThat(store.size()).isEqualTo(values.length);
         for (int i = 0; i < values.length; i++) {
             assertThat(store.get(i)).isSameAs(values[i]);
         }

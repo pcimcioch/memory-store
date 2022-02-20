@@ -135,4 +135,54 @@ class ObjectStoreTest {
         // then
         assertThat(thrown).isInstanceOf(IndexOutOfBoundsException.class);
     }
+
+    @Test
+    void sizeOfEmpty() {
+        // given
+        ObjectStore<String> testee = new ObjectStore<>();
+
+        // when
+        long size = testee.size();
+
+        // then
+        assertThat(size).isZero();
+    }
+
+    @ParameterizedTest
+    @MethodSource("sizes")
+    void sizeOfBlock(int index, int expectedSize) {
+        // given
+        ObjectStore<String> testee = new ObjectStore<>(1024);
+        testee.set(index, "test");
+
+        // when
+        long size = testee.size();
+
+        // then
+        assertThat(size).isEqualTo(expectedSize);
+    }
+
+    public static Stream<Arguments> sizes() {
+        return Stream.of(
+                Arguments.of(0, 1024),
+                Arguments.of(1023, 1024),
+                Arguments.of(1024, 2048),
+                Arguments.of(2047, 2048),
+                Arguments.of(2048, 3072)
+        );
+    }
+
+    @Test
+    void sizeOfBlockAfterRemoval() {
+        // given
+        ObjectStore<String> testee = new ObjectStore<>(1024);
+        testee.set(2000, "test");
+        testee.set(2000, null);
+
+        // when
+        long size = testee.size();
+
+        // then
+        assertThat(size).isEqualTo(2048);
+    }
 }

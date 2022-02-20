@@ -12,7 +12,7 @@ class ObjectPoolStoreTest {
     @Test
     void emptyStoreSize() {
         // when then
-        assertThat(testee.elementsCount()).isZero();
+        assertThat(testee.size()).isZero();
     }
 
     @Test
@@ -22,7 +22,7 @@ class ObjectPoolStoreTest {
 
         // then
         assertThat(thrown).isInstanceOf(IndexOutOfBoundsException.class);
-        assertThat(testee.elementsCount()).isZero();
+        assertThat(testee.size()).isZero();
     }
 
     @Test
@@ -37,7 +37,7 @@ class ObjectPoolStoreTest {
         assertThat(testee.get(1)).isEqualTo("Second");
         assertThat(testee.get(2)).isEqualTo("Third");
 
-        assertThat(testee.elementsCount()).isEqualTo(3);
+        assertThat(testee.size()).isEqualTo(3);
     }
 
     @Test
@@ -51,6 +51,6 @@ class ObjectPoolStoreTest {
         assertThat(testee.get(0)).isEqualTo("First");
         assertThat(testee.get(1)).isEqualTo("first");
 
-        assertThat(testee.elementsCount()).isEqualTo(2);
+        assertThat(testee.size()).isEqualTo(2);
     }
 }

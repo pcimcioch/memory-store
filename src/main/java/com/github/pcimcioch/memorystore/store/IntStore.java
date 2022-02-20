@@ -108,10 +108,8 @@ public class IntStore {
         return blocks.length;
     }
 
-    // TODO tests
     public long size() {
-        // TODO implement
-        return 1;
+        return (long) blockSize * blocks.length;
     }
 
     private static int countBits(int blockSize) {

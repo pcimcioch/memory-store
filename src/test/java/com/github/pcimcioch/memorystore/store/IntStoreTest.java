@@ -192,4 +192,54 @@ class IntStoreTest {
         // then
         assertThat(thrown).isInstanceOf(IndexOutOfBoundsException.class);
     }
+
+    @Test
+    void sizeOfEmpty() {
+        // given
+        IntStore testee = new IntStore();
+
+        // when
+        long size = testee.size();
+
+        // then
+        assertThat(size).isZero();
+    }
+
+    @ParameterizedTest
+    @MethodSource("sizes")
+    void sizeOfBlock(int index, int expectedSize) {
+        // given
+        IntStore testee = new IntStore(1024);
+        testee.setInt(index, 100);
+
+        // when
+        long size = testee.size();
+
+        // then
+        assertThat(size).isEqualTo(expectedSize);
+    }
+
+    public static Stream<Arguments> sizes() {
+        return Stream.of(
+                Arguments.of(0, 1024),
+                Arguments.of(1023, 1024),
+                Arguments.of(1024, 2048),
+                Arguments.of(2047, 2048),
+                Arguments.of(2048, 3072)
+        );
+    }
+
+    @Test
+    void sizeOfBlockAfterRemoval() {
+        // given
+        IntStore testee = new IntStore(1024);
+        testee.setInt(2000, 100);
+        testee.setInt(2000, 0);
+
+        // when
+        long size = testee.size();
+
+        // then
+        assertThat(size).isEqualTo(2048);
+    }
 }
