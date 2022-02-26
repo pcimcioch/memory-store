@@ -9,7 +9,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-// TODO add tests
 class StoreSerializers {
 
     private static final IntStoreSerializer INT_STORE_SERIALIZER = new IntStoreSerializer();
@@ -36,11 +35,11 @@ class StoreSerializers {
             if (store == null) {
                 encoder.writeLong(-1);
             } else {
-                long size = store.size();
                 long effectiveSize = effectiveSize(store);
 
-                encoder.writeLong(size);
+                encoder.writeLong(store.size());
                 encoder.writeLong(effectiveSize);
+                encoder.writeInt(store.blockSize());
                 for (long i = 0; i < effectiveSize; i++) {
                     encoder.writeInt(store.getInt(i));
                 }
@@ -54,8 +53,9 @@ class StoreSerializers {
                 return null;
             }
             long effectiveSize = decoder.readLong();
+            int blockSize = decoder.readInt();
 
-            IntStore store = new IntStore();
+            IntStore store = new IntStore(blockSize);
             if (size > 0) {
                 store.setInt(size - 1, 0);
             }
@@ -90,11 +90,11 @@ class StoreSerializers {
             if (store == null) {
                 encoder.writeLong(-1);
             } else {
-                long size = store.size();
                 long effectiveSize = effectiveSize(store);
 
-                encoder.writeLong(size);
+                encoder.writeLong(store.size());
                 encoder.writeLong(effectiveSize);
+                encoder.writeInt(store.blockSize());
                 for (long i = 0; i < effectiveSize; i++) {
                     elementSerializer.serialize(encoder, store.get(i));
                 }
@@ -108,8 +108,9 @@ class StoreSerializers {
                 return null;
             }
             long effectiveSize = decoder.readLong();
+            int blockSize = decoder.readInt();
 
-            ObjectStore<T> store = new ObjectStore<>();
+            ObjectStore<T> store = new ObjectStore<>(blockSize);
             if (size > 0) {
                 store.set(size - 1, null);
             }

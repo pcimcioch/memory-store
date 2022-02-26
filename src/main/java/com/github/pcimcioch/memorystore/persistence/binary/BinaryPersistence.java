@@ -41,7 +41,6 @@ import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
  * Technically, the table will be serialized to binary using
  * {@link Serializer}
  */
-// TODO javadoc
 // TODO tests
 public class BinaryPersistence extends Table.Accessor {
 
@@ -51,6 +50,13 @@ public class BinaryPersistence extends Table.Accessor {
     private final Serializer<Map<String, ObjectStore<?>>> objectStoresSerializer;
     private final Serializer<Map<String, ObjectPoolStore<?>>> poolStoresSerializer;
 
+    /**
+     * Creates persistence that allows saving {@link Table} as binary stream.
+     * You can also use {@link #builder()} to create this persistence in more readable way
+     *
+     * @param objectSerializers serializers that should be used to serialize elements of object headers
+     * @param poolSerializers   serializers that should be used to serialize elements of object pool headers
+     */
     @SuppressWarnings("unchecked")
     public BinaryPersistence(Map<ObjectDirectHeader<?>, Serializer<?>> objectSerializers,
                              Map<PoolDefinition, Serializer<?>> poolSerializers) {
@@ -70,18 +76,40 @@ public class BinaryPersistence extends Table.Accessor {
         this.poolStoresSerializer = Serializers.mapOf(Serializers.string(), poolStoreSerializers::get);
     }
 
+    /**
+     * Save table to the file
+     *
+     * @param path  file where to save
+     * @param table table to save
+     * @throws IOException if file operation failed
+     */
     public void save(Path path, Table table) throws IOException {
         try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(path)))) {
             save(output, table);
         }
     }
 
+    /**
+     * Loads table from the file
+     *
+     * @param path    file from which to load
+     * @param headers headers of the Table
+     * @return table
+     * @throws IOException if file operation failed
+     */
     public Table load(Path path, Collection<? extends Header<? extends Encoder>> headers) throws IOException {
         try (DataInputStream input = new DataInputStream(new BufferedInputStream(Files.newInputStream(path)))) {
             return load(input, headers);
         }
     }
 
+    /**
+     * Saves table to the compressed file. This will be a zip file with one entry called "table"
+     *
+     * @param path  file where to save
+     * @param table table to save
+     * @throws IOException if file operation failed
+     */
     public void saveCompressed(Path path, Table table) throws IOException {
         try (ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(path)))) {
             zipStream.putNextEntry(new ZipEntry("table"));
@@ -91,6 +119,14 @@ public class BinaryPersistence extends Table.Accessor {
         }
     }
 
+    /**
+     * Loads table from the compressed file. This must be a zip file with one entry called "table"
+     *
+     * @param path    file from which to load
+     * @param headers headers of the Table
+     * @return table
+     * @throws IOException if file operation failed
+     */
     public Table loadCompressed(Path path, Collection<? extends Header<? extends Encoder>> headers) throws IOException {
         try (ZipInputStream zipStream = new ZipInputStream(new BufferedInputStream(Files.newInputStream(path)))) {
             ZipEntry entry = zipStream.getNextEntry();
@@ -103,6 +139,13 @@ public class BinaryPersistence extends Table.Accessor {
         }
     }
 
+    /**
+     * Saves table to the data stream
+     *
+     * @param stream stream where save to
+     * @param table  table to save
+     * @throws IOException if stream operation failed
+     */
     public void save(DataOutput stream, Table table) throws IOException {
         headersSerializer.serialize(stream, HeaderDefinition.from(table.headers()));
         memoryLayoutSerializer.serialize(stream, memoryLayout(table));
@@ -111,6 +154,14 @@ public class BinaryPersistence extends Table.Accessor {
         poolStoresSerializer.serialize(stream, poolStoresByName(table));
     }
 
+    /**
+     * Loads table from the data stream
+     *
+     * @param stream  stream to read from
+     * @param headers headers of the Table
+     * @return table
+     * @throws IOException if stream operation failed
+     */
     public Table load(DataInput stream, Collection<? extends Header<? extends Encoder>> headers) throws IOException {
         Set<HeaderDefinition> dataHeaders = headersSerializer.deserialize(stream);
         Set<HeaderDefinition> tableHeaders = HeaderDefinition.from(headers);
@@ -129,7 +180,7 @@ public class BinaryPersistence extends Table.Accessor {
     }
 
     private LoaderMemoryLayout memoryLayout(Table table) {
-        return new LoaderMemoryLayout(encoders(table));
+        return new LoaderMemoryLayout(32, encoders(table));
     }
 
     private Map<String, ObjectStore<?>> objectStoresByName(Table table) {
@@ -146,24 +197,52 @@ public class BinaryPersistence extends Table.Accessor {
         );
     }
 
+    /**
+     * Persistence builder
+     *
+     * @return new builder
+     */
     public static BinaryStreamPersistenceBuilder builder() {
         return new BinaryStreamPersistenceBuilder();
     }
 
+    /**
+     * Used to build {@link BinaryPersistence} in more readable way
+     */
     public static final class BinaryStreamPersistenceBuilder {
         private final Map<ObjectDirectHeader<?>, Serializer<?>> objectSerializers = new HashMap<>();
         private final Map<PoolDefinition, Serializer<?>> poolSerializers = new HashMap<>();
 
+        /**
+         * Registers serializer for elements of object header
+         *
+         * @param header     object header
+         * @param serializer serializer of the element
+         * @param <T>        type of the object
+         * @return builder
+         */
         public <T> BinaryStreamPersistenceBuilder registerSerializer(ObjectDirectHeader<T> header, Serializer<T> serializer) {
             objectSerializers.put(header, serializer);
             return this;
         }
 
+        /**
+         * Registers serializer for elements of pool header
+         *
+         * @param pool       pool definition
+         * @param serializer serializer of the element
+         * @return builder
+         */
         public BinaryStreamPersistenceBuilder registerSerializer(PoolDefinition pool, Serializer<?> serializer) {
             poolSerializers.put(pool, serializer);
             return this;
         }
 
+        /**
+         * Build persistence
+         *
+         * @return new persistence
+         */
         public BinaryPersistence build() {
             return new BinaryPersistence(objectSerializers, poolSerializers);
         }

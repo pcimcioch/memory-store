@@ -19,28 +19,27 @@ import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 import static com.github.pcimcioch.serializer.Serializers.mapOf;
 import static com.github.pcimcioch.serializer.Serializers.string;
 
-//TODO tests
 class LoaderMemoryLayout implements MemoryLayoutBuilder {
-
-    private static final int WORD_SIZE = 32;
 
     static final LoaderMemoryLayoutSerializer SERIALIZER = new LoaderMemoryLayoutSerializer();
 
     private final int recordSize;
+    private final int wordSize;
     private final Map<String, MemoryPosition> headerMemoryPositions;
 
-    LoaderMemoryLayout(Map<Header<? extends Encoder>, Encoder> encoders) {
-        this(recordSize(encoders), headerMemoryPositions(encoders));
+    LoaderMemoryLayout(int wordSize, Map<Header<? extends Encoder>, Encoder> encoders) {
+        this(wordSize, recordSize(encoders), headerMemoryPositions(encoders));
     }
 
-    LoaderMemoryLayout(int recordSize, Map<String, MemoryPosition> headerMemoryPositions) {
+    LoaderMemoryLayout(int wordSize, int recordSize, Map<String, MemoryPosition> headerMemoryPositions) {
+        this.wordSize = wordSize;
         this.recordSize = recordSize;
         this.headerMemoryPositions = headerMemoryPositions;
     }
 
     @Override
     public MemoryLayout compute(int wordSize, Collection<? extends BitHeader<?>> headers) {
-        assertArgument(WORD_SIZE == wordSize, "This memory layout supports %d word size, but %d requested", WORD_SIZE, wordSize);
+        assertArgument(this.wordSize == wordSize, "This memory layout supports %d word size, but %d requested", this.wordSize, wordSize);
 
         Map<BitHeader<?>, MemoryPosition> memoryPositions = headers.stream()
                 .collect(
@@ -86,6 +85,7 @@ class LoaderMemoryLayout implements MemoryLayoutBuilder {
                 encoder.writeInt(-1);
             } else {
                 encoder.writeInt(layout.recordSize);
+                encoder.writeInt(layout.wordSize);
                 positionsSerializer.serialize(encoder, layout.headerMemoryPositions);
             }
         }
@@ -96,9 +96,10 @@ class LoaderMemoryLayout implements MemoryLayoutBuilder {
             if (recordSize == -1) {
                 return null;
             }
+            int wordSize = decoder.readInt();
             Map<String, MemoryPosition> positions = positionsSerializer.deserialize(decoder);
 
-            return new LoaderMemoryLayout(recordSize, positions);
+            return new LoaderMemoryLayout(wordSize, recordSize, positions);
         }
     }
 

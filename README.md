@@ -30,28 +30,32 @@ All object type data is stored in `Object[][]` blocks of memory.
 
 ## Quick Start
 ```java
-// define table structure
-BitHeader<LongEncoder> accountCreationHeader = long64("accountCreation");
-BitHeader<UnsignedIntegerEncoder> idHeader = Headers.unsignedIntMaxValue("personalIdentificationNumber", 999999);
-BitHeader<EnumEncoder<Gender>> genderHeader = Headers.enumType("gender", Gender.class);
-ObjectDirectHeader<String> nameHeader = Headers.object("name");
+public class Main {
+    public static void main(String[] args) {
+        // define table structure
+        BitHeader<LongEncoder> accountCreationHeader = Headers.long64("accountCreation");
+        BitHeader<UnsignedIntegerEncoder> idHeader = Headers.unsignedIntMaxValue("personalIdentificationNumber", 999999);
+        BitHeader<EnumEncoder<Gender>> genderHeader = Headers.enumType("gender", Gender.class);
+        ObjectDirectHeader<String> nameHeader = Headers.object("name");
 
-Table user = new Table(List.of(accountCreationHeader, idHeader, genderHeader, nameHeader));
+        Table user = new Table(List.of(accountCreationHeader, idHeader, genderHeader, nameHeader));
 
-// get encoders for each field
-LongEncoder accountCreation = user.encoderFor(accountCreationHeader);
-UnsignedIntegerEncoder id = user.encoderFor(idHeader);
-EnumEncoder<Gender> gender = user.encoderFor(genderHeader);
-ObjectDirectEncoder<String> name = user.encoderFor(nameHeader);
+        // get encoders for each field
+        LongEncoder accountCreation = user.encoderFor(accountCreationHeader);
+        UnsignedIntegerEncoder id = user.encoderFor(idHeader);
+        EnumEncoder<Gender> gender = user.encoderFor(genderHeader);
+        ObjectDirectEncoder<String> name = user.encoderFor(nameHeader);
 
-// use encoders to store 0th record
-accountCreation.set(0, LocalDateTime.of(2000, 4, 14, 15, 22, 35).toInstant(ZoneOffset.UTC).toEpochMilli());
-id.set(0, 12345);
-gender.set(0, Gender.MALE);
-name.set(0, "John Doe");
+        // use encoders to store 0th record
+        accountCreation.set(0, LocalDateTime.of(2000, 4, 14, 15, 22, 35).toInstant(ZoneOffset.UTC).toEpochMilli());
+        id.set(0, 12345);
+        gender.set(0, Gender.MALE);
+        name.set(0, "John Doe");
 
-// use encoders to read 0th record
-String message = "Our first user is " + name.get(0) + ", their account id is " + id.get(0);
+        // use encoders to read 0th record
+        String message = "Our first user is " + name.get(0) + ", their account id is " + id.get(0);
+    }
+}
 ```
 
 It could be packed in more developer-friendly representation:
@@ -63,7 +67,7 @@ public class UserTable {
     private final ObjectDirectEncoder<String> name;
     
     public UserView() {
-        BitHeader<LongEncoder> accountCreationHeader = long64("accountCreation");
+        BitHeader<LongEncoder> accountCreationHeader = Headers.long64("accountCreation");
         BitHeader<UnsignedIntegerEncoder> idHeader = Headers.unsignedIntMaxValue("personalIdentificationNumber", 999999);
         BitHeader<EnumEncoder<Gender>> genderHeader = Headers.enumType("gender", Gender.class);
         ObjectDirectHeader<String> nameHeader = Headers.object("name");
@@ -130,7 +134,7 @@ public class UserRepository {
     private final ObjectDirectEncoder<String> name;
 
     public UserRepository() {
-        BitHeader<LongEncoder> accountCreationHeader = long64("accountCreation");
+        BitHeader<LongEncoder> accountCreationHeader = Headers.long64("accountCreation");
         BitHeader<UnsignedIntegerEncoder> idHeader = Headers.unsignedIntMaxValue("personalIdentificationNumber", 999999);
         BitHeader<EnumEncoder<Gender>> genderHeader = Headers.enumType("gender", Gender.class);
         ObjectDirectHeader<String> nameHeader = Headers.object("name");
@@ -222,12 +226,16 @@ Field types are described by `Headers`. There are multiple predefined `Headers` 
 ### Table
 Table can be created using `Table` class:
 ```java
-Table test = new Table(List.of(
-    Headers.long64("dateOfBirth"),                                          // date of birth stored on 64 bits
-    Headers.unsignedIntMaxValue("personalIdentificationNumber", 999999),    // id stored on as many bits as required to store values in range 0-999999
-    Headers.enumType("gender", Gender.class),                               // gender stored on as many bits as required to store all values of Geder enum
-    Headers.<String>object("name")                                          // name stored as an String object
-));
+public class Main {
+    public static void main(String[] args) {
+        Table test = new Table(List.of(
+                Headers.long64("dateOfBirth"),                                          // date of birth stored on 64 bits
+                Headers.unsignedIntMaxValue("personalIdentificationNumber", 999999),    // id stored on as many bits as required to store values in range 0-999999
+                Headers.enumType("gender", Gender.class),                               // gender stored on as many bits as required to store all values of Geder enum
+                Headers.<String>object("name")                                          // name stored as an String object
+        ));
+    }
+}
 ```
 
 ### Primitive types
@@ -310,16 +318,20 @@ Two additional implementations are provided in this library.
 
 `NonOverlappingMemoryLayoutBuilder`
 ```java
-new NonOverlappingMemoryLayoutBuilder(
-    32,     // word size of 32 bits. It's default value. Table supports only 32 bit words
-    4,      // 4 words per record
-    Map.of(
-        Headers.int32("header1"), new MemoryPosition(0, 0),     // 32 bit header located at 0th word in record, starting on 0th bit. It will take one whole word
-        Headers.long64("header2"), new MemoryPosition(1, 0),    // 64 bit header located at 1st word in record, starting on 0th bit. It will take two whole words
-        Headers.byte8("header3"), new MemoryPosition(3, 0),     // 8 bit header located at 3rd word in record, starting on 0th bit. It will take 1/4th of the record
-        Headers.short16("header4"), new MemoryPosition(3, 8)    // 16 bit header located at 3rd word in record, starting on 8th bit. It will take half of the record
-    )
-);
+public class Main {
+    public static void main(String[] args) {
+        NonOverlappingMemoryLayoutBuilder layout = new NonOverlappingMemoryLayoutBuilder(
+                32,     // word size of 32 bits. It's default value. Table supports only 32 bit words
+                4,      // 4 words per record
+                Map.of(
+                        Headers.int32("header1"), new MemoryPosition(0, 0),     // 32 bit header located at 0th word in record, starting on 0th bit. It will take one whole word
+                        Headers.long64("header2"), new MemoryPosition(1, 0),    // 64 bit header located at 1st word in record, starting on 0th bit. It will take two whole words
+                        Headers.byte8("header3"), new MemoryPosition(3, 0),     // 8 bit header located at 3rd word in record, starting on 0th bit. It will take 1/4th of the record
+                        Headers.short16("header4"), new MemoryPosition(3, 8)    // 16 bit header located at 3rd word in record, starting on 8th bit. It will take half of the record
+                )
+        );
+    }
+}
 ```
 
 In this example last 8 bits of the 3rd word in the record will not be used - it will be a padding. As builder name suggests,
@@ -327,16 +339,20 @@ headers cannot overlap on each another. Constructor will throw na exception if s
 
 `OverlappingMemoryLayoutBuilder`
 ```java
-new OverlappingMemoryLayoutBuilder(
-    32,     // word size of 32 bits. It's default value. Table supports only 32 bit words
-    4,      // 4 words per record
-    Map.of(
-        Headers.int32("header1"), new MemoryPosition(0, 0),     // 32 bit header located at 0th word in record, starting on 0th bit. It will take one whole word
-        Headers.long64("header2"), new MemoryPosition(1, 0),    // 64 bit header located at 1st word in record, starting on 0th bit. It will take two whole words
-        Headers.byte8("header3"), new MemoryPosition(3, 0),     // 8 bit header located at 3rd word in record, starting on 0th bit. It will take 1/4th of the record
-        Headers.short16("header4"), new MemoryPosition(3, 0)    // 16 bit header located at 3rd word in record, starting on 0th bit. It will take half of the record
-    )
-);
+public class Main {
+    public static void main(String[] args) {
+        OverlappingMemoryLayoutBuilder layout = new OverlappingMemoryLayoutBuilder(
+                32,     // word size of 32 bits. It's default value. Table supports only 32 bit words
+                4,      // 4 words per record
+                Map.of(
+                        Headers.int32("header1"), new MemoryPosition(0, 0),     // 32 bit header located at 0th word in record, starting on 0th bit. It will take one whole word
+                        Headers.long64("header2"), new MemoryPosition(1, 0),    // 64 bit header located at 1st word in record, starting on 0th bit. It will take two whole words
+                        Headers.byte8("header3"), new MemoryPosition(3, 0),     // 8 bit header located at 3rd word in record, starting on 0th bit. It will take 1/4th of the record
+                        Headers.short16("header4"), new MemoryPosition(3, 0)    // 16 bit header located at 3rd word in record, starting on 0th bit. It will take half of the record
+                )
+        );
+    }
+}
 ```
 This variant of a builder allows headers to overlap. In this example, `header3` and `header4` overlap and take the same part of the memory.
 Such approach can be used to construct unions to store in the same part of memory one of many type of data.
@@ -347,6 +363,106 @@ Union is a type of data structure that holds one of other data structure. For ex
 See [Memory Layout](#memory-layout) section for more details
 
 ### Persistence
-Persistence is not yet implemented. The very next features to be added are storing and loading Tables in files and input/output stream in binary format.
+It is possible to save Tables in files and input/output stream in binary format.
 
-[//]: # (TODO Implement)
+```java
+// Some custom type
+class MyType {
+    private final long id;
+    private final String name;
+    private final List<String> someList;
+
+    MyType(long id, String name, List<String> someList) {
+        this.id = id;
+        this.name = name;
+        this.someList = someList;
+    }
+
+    public long id() {
+        return id;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public List<String> someList() {
+        return someList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MyType myType = (MyType) o;
+        return id == myType.id && Objects.equals(name, myType.name) && Objects.equals(someList, myType.someList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, someList);
+    }
+}
+
+// Serializer for custom type
+class MyTypeSerializer implements Serializer<MyType> {
+
+    private static final Serializer<String> NAME_SERIALIZER = Serializers.string();
+    private static final Serializer<List<String>> SOME_LIST_SERIALIZER = Serializers.listOf(Serializers.string());
+
+    @Override
+    public void serialize(DataOutput encoder, MyType object) throws IOException {
+        if (object == null) {
+            // Serializer should support null values. We can do it for example in this way - normally id cannot be 
+            // negative, so negative value denotes null object
+            encoder.writeLong(-1);
+        } else {
+            encoder.writeLong(object.id());
+            NAME_SERIALIZER.serialize(encoder, object.name());
+            SOME_LIST_SERIALIZER.serialize(encoder, object.someList());
+        }
+    }
+
+    @Override
+    public MyType deserialize(DataInput decoder) throws IOException {
+        long id = decoder.readLong();
+        if (id == -1) {
+            return null;
+        }
+        
+        String name = NAME_SERIALIZER.deserialize(decoder);
+        List<String> someList = SOME_LIST_SERIALIZER.deserialize(decoder);
+        
+        return new MyType(id, name, someList);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        // create table
+        Table table = new Table(List.of(
+                Headers.int32("int"),
+                Headers.long64("long"),
+                Headers.<String>object("string"),
+                Headers.objectPool("myType", Headers.poolOnBits("pool", 12))
+        ));
+       
+        // build persistence. Configure serializers for each object type store in table
+        BinaryPersistence persistence = BinaryPersistence.builder()
+                .registerSerializer(Headers.object("string"), Serializers.string())
+                .registerSerializer(Headers.poolOnBits("pool", 12), new MyTypeSerializer())
+                .build();
+        
+        // save to file
+        persistence.save(Paths.get("table.dat"), table);
+        
+        // load from file. You must know all the headers of the table you are trying to load
+        Table loadedTable = persistence.load(Paths.get("table.dat"), List.of(
+                Headers.int32("int"),
+                Headers.long64("long"),
+                Headers.<String>object("string"),
+                Headers.objectPool("myType", Headers.poolOnBits("pool", 12))
+        ));
+    }
+}
+```
