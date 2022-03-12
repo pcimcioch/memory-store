@@ -32,9 +32,9 @@ class HeaderDefinitionTest extends SerializerTestBase {
 
     @ParameterizedTest
     @MethodSource("headers")
-    void headerBuilding(Header<?> header, HeaderDefinition expected) {
+    void headerBuilding(Header<?> header, Set<HeaderDefinition> expected) {
         // when
-        HeaderDefinition actual = HeaderDefinition.from(header);
+        Set<HeaderDefinition> actual = HeaderDefinition.from(List.of(header));
 
         // then
         assertThat(actual).isEqualTo(expected);
@@ -42,12 +42,12 @@ class HeaderDefinitionTest extends SerializerTestBase {
 
     private static Stream<Arguments> headers() {
         return Stream.of(
-                Arguments.of(int32("test"), new BitHeaderDefinition("test", 32, 32)),
-                Arguments.of(long64("test"), new BitHeaderDefinition("test", 64, 64)),
-                Arguments.of(bool("test"), new BitHeaderDefinition("test", 1, 32)),
-                Arguments.of(unsignedIntOnBits("test", 7), new BitHeaderDefinition("test", 7, 32)),
-                Arguments.of(object("test"), new ObjectDirectHeaderDefinition("test")),
-                Arguments.of(objectPool("test", poolOnBits("pool", 5)), new ObjectPoolHeaderDefinition("test", "pool", 5))
+                Arguments.of(int32("test"), Set.of(new BitHeaderDefinition("test", 32, 32))),
+                Arguments.of(long64("test"), Set.of(new BitHeaderDefinition("test", 64, 64))),
+                Arguments.of(bool("test"), Set.of(new BitHeaderDefinition("test", 1, 32))),
+                Arguments.of(unsignedIntOnBits("test", 7), Set.of(new BitHeaderDefinition("test", 7, 32))),
+                Arguments.of(object("test"), Set.of(new ObjectDirectHeaderDefinition("test"))),
+                Arguments.of(objectPool("test", poolOnBits("pool", 5)), Set.of(new ObjectPoolHeaderDefinition("test", "pool", 5), new BitHeaderDefinition("test-index", 5, 32)))
         );
     }
 
@@ -71,7 +71,8 @@ class HeaderDefinitionTest extends SerializerTestBase {
         Set<HeaderDefinition> expected = Set.of(
                 new BitHeaderDefinition("header1", 32, 32),
                 new ObjectDirectHeaderDefinition("header2"),
-                new ObjectPoolHeaderDefinition("header3", "pool", 12)
+                new ObjectPoolHeaderDefinition("header3", "pool", 12),
+                new BitHeaderDefinition("header3-index", 12, 32)
         );
 
         // when

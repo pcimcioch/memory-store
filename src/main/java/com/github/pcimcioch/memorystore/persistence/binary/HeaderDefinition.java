@@ -59,24 +59,29 @@ abstract class HeaderDefinition {
                 '}';
     }
 
-    static HeaderDefinition from(Header<?> header) {
-        if (header instanceof ObjectPoolHeader) {
-            return new ObjectPoolHeaderDefinition((ObjectPoolHeader<?>) header);
-        }
-        if (header instanceof ObjectDirectHeader) {
-            return new ObjectDirectHeaderDefinition((ObjectDirectHeader<?>) header);
-        }
-        if (header instanceof BitHeader) {
-            return new BitHeaderDefinition((BitHeader<?>) header);
-        }
-
-        throw new IllegalArgumentException("Unable to build header definition from header " + header.getClass());
-    }
-
     static Set<HeaderDefinition> from(Collection<? extends Header<? extends Encoder>> headers) {
         return headers.stream()
                 .map(HeaderDefinition::from)
+                .flatMap(List::stream)
                 .collect(Collectors.toSet());
+    }
+
+    private static List<HeaderDefinition> from(Header<?> header) {
+        if (header instanceof ObjectPoolHeader) {
+            ObjectPoolHeader<?> poolHeader = (ObjectPoolHeader<?>) header;
+            return List.of(
+                    new ObjectPoolHeaderDefinition(poolHeader),
+                    new BitHeaderDefinition(poolHeader.poolIndexHeader())
+            );
+        }
+        if (header instanceof ObjectDirectHeader) {
+            return List.of(new ObjectDirectHeaderDefinition((ObjectDirectHeader<?>) header));
+        }
+        if (header instanceof BitHeader) {
+            return List.of(new BitHeaderDefinition((BitHeader<?>) header));
+        }
+
+        throw new IllegalArgumentException("Unable to build header definition from header " + header.getClass());
     }
 
     static final class ObjectPoolHeaderDefinition extends HeaderDefinition {

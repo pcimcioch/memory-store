@@ -41,7 +41,6 @@ import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
  * Technically, the table will be serialized to binary using
  * {@link Serializer}
  */
-// TODO tests
 public class BinaryPersistence extends Table.Accessor {
 
     private final CollectionSerializer<HeaderDefinition, Set<HeaderDefinition>> headersSerializer;
