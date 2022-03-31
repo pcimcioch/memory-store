@@ -27,7 +27,7 @@ public class UnsignedIntegerEncoder extends BitEncoder {
     }
 
     public void set(long position, int value) {
-        assertArgument(value >=0 && value <= maxValue, incorrectValueException);
+        assertArgument(value >= 0 && value <= maxValue, incorrectValueException);
         store.setPartialInt(storeIndex(position), value << bitShift, mask);
     }
 
@@ -44,19 +44,5 @@ public class UnsignedIntegerEncoder extends BitEncoder {
     @Override
     protected int maxLastBit() {
         return MAX_LAST_BIT;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        UnsignedIntegerEncoder that = (UnsignedIntegerEncoder) o;
-        return maxValue == that.maxValue && bitShift == that.bitShift;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), maxValue, bitShift);
     }
 }

@@ -1,13 +1,15 @@
 package com.github.pcimcioch.memorystore.header;
 
-import com.github.pcimcioch.memorystore.util.Utils;
+import com.github.pcimcioch.memorystore.encoder.BitSetEncoder;
 import com.github.pcimcioch.memorystore.encoder.BooleanEncoder;
 import com.github.pcimcioch.memorystore.encoder.ByteEncoder;
 import com.github.pcimcioch.memorystore.encoder.CharEncoder;
 import com.github.pcimcioch.memorystore.encoder.DoubleEncoder;
+import com.github.pcimcioch.memorystore.encoder.EnumBitSetEncoder;
 import com.github.pcimcioch.memorystore.encoder.EnumEncoder;
-import com.github.pcimcioch.memorystore.encoder.EnumEncoder.EnumToIntFunction;
-import com.github.pcimcioch.memorystore.encoder.EnumEncoder.IntToEnumFunction;
+import com.github.pcimcioch.memorystore.encoder.EnumEncoderBase;
+import com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.EnumToIntFunction;
+import com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.IntToEnumFunction;
 import com.github.pcimcioch.memorystore.encoder.FloatEncoder;
 import com.github.pcimcioch.memorystore.encoder.IntEncoder;
 import com.github.pcimcioch.memorystore.encoder.LongEncoder;
@@ -15,14 +17,15 @@ import com.github.pcimcioch.memorystore.encoder.ShortEncoder;
 import com.github.pcimcioch.memorystore.encoder.SignedIntegerEncoder;
 import com.github.pcimcioch.memorystore.encoder.UnsignedIntegerEncoder;
 import com.github.pcimcioch.memorystore.header.ObjectPoolHeader.PoolDefinition;
+import com.github.pcimcioch.memorystore.util.Utils;
 
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.enumFactory;
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.enumIndexer;
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.enumSize;
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.nullableEnumFactory;
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.nullableEnumIndexer;
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.nullableEnumSize;
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
-import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.enumFactory;
-import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.enumIndexer;
-import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.enumSize;
-import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.nullableEnumFactory;
-import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.nullableEnumIndexer;
-import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.nullableEnumSize;
 
 /**
  * This class contains constructor methods for common headers implemented by this library. It's just a facade
@@ -310,10 +313,88 @@ public final class Headers {
      * @return new header
      */
     public static BitHeader<UnsignedIntegerEncoder> unsignedIntMaxValue(String name, int maxValue) {
-        assertValueInRange(maxValue, UnsignedIntegerEncoder.MIN_BIT_COUNT, UnsignedIntegerEncoder.MAX_BIT_COUNT
-        );
+        assertValueInRange(maxValue, UnsignedIntegerEncoder.MIN_BIT_COUNT, UnsignedIntegerEncoder.MAX_BIT_COUNT);
 
         return new BitHeader<>(name, Utils.countBits((long) maxValue + 1), UnsignedIntegerEncoder.MAX_LAST_BIT, UnsignedIntegerEncoder::new);
+    }
+
+    /**
+     * Store BitSet on defined number of bits
+     *
+     * @param name      name of the header
+     * @param bitsCount number of possible values in the bits set
+     * @return new header
+     */
+    // TODO add tests
+    public static BitHeader<BitSetEncoder> bitSet(String name, int bitsCount) {
+        assertBitsCount(bitsCount, BitSetEncoder.MIN_BIT_COUNT, BitSetEncoder.MAX_BIT_COUNT);
+
+        return new BitHeader<>(name, bitsCount, BitSetEncoder.MAX_LAST_BIT, BitSetEncoder::new);
+    }
+
+    /**
+     * Store enum bit set on as many bits as there are possible enum values excluding null. It is not possible to store null
+     * value in this structure
+     * <p>
+     * To store null value see {@link #nullableEnumBitSet(String, Class)}
+     * <p>
+     * To reserve more bits for the enum (for example in case when you expect enum to grow in the future) use
+     * {@link #enumBitSetMaxSize(String, int, EnumToIntFunction)}
+     *
+     * @param name        name of the header
+     * @param elementType enum class
+     * @param <E>         enum type
+     * @return new header
+     */
+    // TODO add tests
+    public static <E extends Enum<E>> BitHeader<EnumBitSetEncoder<E>> enumBitSet(String name, Class<E> elementType) {
+        return enumBitSetMaxSize(name, enumSize(elementType), EnumEncoderBase.<E>enumIndexer());
+    }
+
+    /**
+     * Store enum on as many bits as there are possible enum values including null. It is possible to store null
+     * value in this structure
+     * <p>
+     * To store non-null value see {@link #enumBitSet(String, Class)}
+     * <p>
+     * To reserve more bits for the enum (for example in case when you expect enum to grow in the future) use
+     * {@link #enumBitSetMaxSize(String, int, EnumToIntFunction)}
+     *
+     * @param name        name of the header
+     * @param elementType enum class
+     * @param <E>         enum type
+     * @return new header
+     */
+    // TODO add tests
+    public static <E extends Enum<E>> BitHeader<EnumBitSetEncoder<E>> nullableEnumBitSet(String name, Class<E> elementType) {
+        return enumBitSetMaxSize(name, nullableEnumSize(elementType), EnumEncoderBase.<E>nullableEnumIndexer());
+    }
+
+    /**
+     * Store enum bit set
+     * <p>
+     * To automatically compute required size, see {@link #enumBitSet(String, Class)} or
+     * {@link #nullableEnumBitSet(String, Class)}
+     *
+     * @param name        name of the header
+     * @param enumSize    maximum number of different enum values that can be stored
+     * @param enumIndexer indexer, that will return int index of the enum. User must make sure that it will not return
+     *                    value too big to store in the memory
+     * @param <E>         type of the enum
+     * @return new header
+     */
+    // TODO add tests
+    public static <E extends Enum<E>> BitHeader<EnumBitSetEncoder<E>> enumBitSetMaxSize(String name,
+                                                                                        int enumSize,
+                                                                                        EnumToIntFunction<E> enumIndexer) {
+        assertBitsCount(enumSize, EnumBitSetEncoder.MIN_BIT_COUNT, EnumBitSetEncoder.MAX_BIT_COUNT);
+
+        return new BitHeader<>(
+                name,
+                enumSize,
+                EnumBitSetEncoder.MAX_LAST_BIT,
+                config -> new EnumBitSetEncoder<>(config, enumIndexer)
+        );
     }
 
     private static void assertValueInRange(int maxValue, int minBitCount, int maxBitCount) {

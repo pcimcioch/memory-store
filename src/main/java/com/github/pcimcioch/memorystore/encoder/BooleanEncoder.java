@@ -1,7 +1,5 @@
 package com.github.pcimcioch.memorystore.encoder;
 
-import java.util.Objects;
-
 public class BooleanEncoder extends BitEncoder {
 
     public static final int BIT_COUNT = 1;
@@ -44,19 +42,5 @@ public class BooleanEncoder extends BitEncoder {
     @Override
     protected int maxLastBit() {
         return MAX_LAST_BIT;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        BooleanEncoder that = (BooleanEncoder) o;
-        return mask == that.mask;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), mask);
     }
 }

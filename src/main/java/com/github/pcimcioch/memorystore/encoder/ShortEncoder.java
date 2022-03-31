@@ -36,18 +36,4 @@ public class ShortEncoder extends BitEncoder {
     protected int maxLastBit() {
         return MAX_LAST_BIT;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        ShortEncoder that = (ShortEncoder) o;
-        return bitShift == that.bitShift;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), bitShift);
-    }
 }

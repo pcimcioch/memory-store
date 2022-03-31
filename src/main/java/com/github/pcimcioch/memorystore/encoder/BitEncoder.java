@@ -56,12 +56,12 @@ public abstract class BitEncoder implements Encoder {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BitEncoder that = (BitEncoder) o;
-        return recordSize == that.recordSize && positionInRecord == that.positionInRecord && store.equals(that.store);
+        return recordSize == that.recordSize && positionInRecord == that.positionInRecord && bitsCount == that.bitsCount && bitShift == that.bitShift && store.equals(that.store);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(store, recordSize, positionInRecord);
+        return Objects.hash(store, recordSize, positionInRecord, bitsCount, bitShift);
     }
 
     /**
@@ -114,6 +114,19 @@ public abstract class BitEncoder implements Encoder {
 
         public int bitsCount() {
             return bitsCount;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Config config = (Config) o;
+            return recordSize == config.recordSize && positionInRecord == config.positionInRecord && bitShift == config.bitShift && bitsCount == config.bitsCount && store.equals(config.store);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(store, recordSize, positionInRecord, bitShift, bitsCount);
         }
     }
 }

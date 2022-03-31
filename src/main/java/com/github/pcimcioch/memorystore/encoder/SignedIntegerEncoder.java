@@ -56,11 +56,11 @@ public class SignedIntegerEncoder extends BitEncoder {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         SignedIntegerEncoder that = (SignedIntegerEncoder) o;
-        return minValue == that.minValue && maxValue == that.maxValue && bitShift == that.bitShift;
+        return minValue == that.minValue;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), minValue, maxValue, bitShift);
+        return Objects.hash(super.hashCode(), minValue);
     }
 }
