@@ -325,7 +325,6 @@ public final class Headers {
      * @param bitsCount number of possible values in the bits set
      * @return new header
      */
-    // TODO add tests
     public static BitHeader<BitSetEncoder> bitSet(String name, int bitsCount) {
         assertBitsCount(bitsCount, BitSetEncoder.MIN_BIT_COUNT, BitSetEncoder.MAX_BIT_COUNT);
 
@@ -336,8 +335,6 @@ public final class Headers {
      * Store enum bit set on as many bits as there are possible enum values excluding null. It is not possible to store null
      * value in this structure
      * <p>
-     * To store null value see {@link #nullableEnumBitSet(String, Class)}
-     * <p>
      * To reserve more bits for the enum (for example in case when you expect enum to grow in the future) use
      * {@link #enumBitSetMaxSize(String, int, EnumToIntFunction)}
      *
@@ -346,35 +343,14 @@ public final class Headers {
      * @param <E>         enum type
      * @return new header
      */
-    // TODO add tests
     public static <E extends Enum<E>> BitHeader<EnumBitSetEncoder<E>> enumBitSet(String name, Class<E> elementType) {
         return enumBitSetMaxSize(name, enumSize(elementType), EnumEncoderBase.<E>enumIndexer());
     }
 
     /**
-     * Store enum on as many bits as there are possible enum values including null. It is possible to store null
-     * value in this structure
-     * <p>
-     * To store non-null value see {@link #enumBitSet(String, Class)}
-     * <p>
-     * To reserve more bits for the enum (for example in case when you expect enum to grow in the future) use
-     * {@link #enumBitSetMaxSize(String, int, EnumToIntFunction)}
-     *
-     * @param name        name of the header
-     * @param elementType enum class
-     * @param <E>         enum type
-     * @return new header
-     */
-    // TODO add tests
-    public static <E extends Enum<E>> BitHeader<EnumBitSetEncoder<E>> nullableEnumBitSet(String name, Class<E> elementType) {
-        return enumBitSetMaxSize(name, nullableEnumSize(elementType), EnumEncoderBase.<E>nullableEnumIndexer());
-    }
-
-    /**
      * Store enum bit set
      * <p>
-     * To automatically compute required size, see {@link #enumBitSet(String, Class)} or
-     * {@link #nullableEnumBitSet(String, Class)}
+     * To automatically compute required size, see {@link #enumBitSet(String, Class)}
      *
      * @param name        name of the header
      * @param enumSize    maximum number of different enum values that can be stored
@@ -383,7 +359,6 @@ public final class Headers {
      * @param <E>         type of the enum
      * @return new header
      */
-    // TODO add tests
     public static <E extends Enum<E>> BitHeader<EnumBitSetEncoder<E>> enumBitSetMaxSize(String name,
                                                                                         int enumSize,
                                                                                         EnumToIntFunction<E> enumIndexer) {

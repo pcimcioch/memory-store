@@ -298,12 +298,20 @@ Headers.<MyClass>objectPool("headerName", pool); // store MyClass objects, pooli
 Objects will be compared using `equals` method
 
 ### BitSets
-BitSets are not implemented yet
-
-[//]: # (TODO Implement)
+When you want to store multiple boolean values in ordered fashion, use BitSets
+```java
+Headers.bitSet("headerName", 10); // store 10 boolean values, indexed in range [0, 9]
+```
 
 ### EnumSets
-EnumSets are not implemented yet
+Similar to BitSets, but an enum can be used as an index
+```java
+Headers.enumBitSet("headerName", MyEnum.class); // store booleans for all possible non-null values of MyEnum enum
+Header.enumBitSetMaxSize("headerName", 10, enumIndexer); // store boolean for given number of bits. In this case 10 bits, so 10 different values can be stored. enumIndexer is used to translate enum value to signed integer that will show which boolean should be set
+```
+
+### Lists
+Lists are not implemented yet
 
 [//]: # (TODO Implement)
 

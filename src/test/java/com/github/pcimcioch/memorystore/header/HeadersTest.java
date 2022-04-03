@@ -1,9 +1,11 @@
 package com.github.pcimcioch.memorystore.header;
 
+import com.github.pcimcioch.memorystore.encoder.BitSetEncoder;
 import com.github.pcimcioch.memorystore.encoder.BooleanEncoder;
 import com.github.pcimcioch.memorystore.encoder.ByteEncoder;
 import com.github.pcimcioch.memorystore.encoder.CharEncoder;
 import com.github.pcimcioch.memorystore.encoder.DoubleEncoder;
+import com.github.pcimcioch.memorystore.encoder.EnumBitSetEncoder;
 import com.github.pcimcioch.memorystore.encoder.EnumEncoder;
 import com.github.pcimcioch.memorystore.encoder.FloatEncoder;
 import com.github.pcimcioch.memorystore.encoder.IntEncoder;
@@ -240,6 +242,82 @@ class HeadersTest {
         assertThat(thrown)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Max Value must be between 1 and 2147483647");
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 10, 100, 1024})
+    void bitSetCorrect(int bitsCount) {
+        // given
+        BitHeader<BitSetEncoder> header = Headers.bitSet(HEADER_NAME, bitsCount);
+
+        // then
+        assertHeader(header, bitsCount);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {Integer.MIN_VALUE, -1, 0, 1025, Integer.MAX_VALUE})
+    void bitSetIncorrect(int bitsCount) {
+        // given
+        Throwable thrown = catchThrowable(() -> Headers.bitSet(HEADER_NAME, bitsCount));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Bits Count must be between 1 and 1024");
+    }
+
+    @ParameterizedTest
+    @MethodSource("enumBitSetCorrectValues")
+    <E extends Enum<E>> void enumBitSetCorrect(Class<E> type, int bitsCount) {
+        // when
+        BitHeader<EnumBitSetEncoder<E>> header = Headers.enumBitSet(HEADER_NAME, type);
+
+        // then
+        assertHeader(header, bitsCount);
+    }
+
+    private static Stream<Arguments> enumBitSetCorrectValues() {
+        return Stream.of(
+                Arguments.of(Type2.class, 2),
+                Arguments.of(Type3.class, 3),
+                Arguments.of(Type6.class, 6),
+                Arguments.of(Type7.class, 7),
+                Arguments.of(Type8.class, 8),
+                Arguments.of(Type9.class, 9)
+        );
+    }
+
+    @Test
+    void enumBitSetIncorrect() {
+        // when
+        Throwable thrown = catchThrowable(() -> Headers.enumBitSet(HEADER_NAME, Type0.class));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Bits Count must be between 1 and 1024");
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 10, 100, 1024})
+    void enumBitSetMaxSizeCorrect(int bitsCount) {
+        // when
+        BitHeader<EnumBitSetEncoder<Type2>> header = Headers.enumBitSetMaxSize(HEADER_NAME, bitsCount, e -> 0);
+
+        // then
+        assertHeader(header, bitsCount);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {Integer.MIN_VALUE, -1, 0, 1025, Integer.MAX_VALUE})
+    void enumBitSetMaxSizeIncorrect(int bitsCount) {
+        // when
+        Throwable thrown = catchThrowable(() -> Headers.enumBitSetMaxSize(HEADER_NAME, bitsCount, e -> 0));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Bits Count must be between 1 and 1024");
     }
 
     @ParameterizedTest

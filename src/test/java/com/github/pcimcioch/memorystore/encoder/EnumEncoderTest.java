@@ -9,10 +9,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.enumFactory;
-import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.enumIndexer;
-import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.nullableEnumFactory;
-import static com.github.pcimcioch.memorystore.encoder.EnumEncoder.nullableEnumIndexer;
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.enumFactory;
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.enumIndexer;
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.nullableEnumFactory;
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.nullableEnumIndexer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 

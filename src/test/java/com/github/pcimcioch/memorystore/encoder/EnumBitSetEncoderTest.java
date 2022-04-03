@@ -8,15 +8,22 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.enumIndexer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-class BitSetEncoderTest {
+class EnumBitSetEncoderTest {
 
     private static final String BITS_COUNT_EX = "Bits Count outside of defined bounds";
 
     private final IntStore store = new IntStore();
+
+    private enum TestType {
+        TYPE1,
+        TYPE2,
+        TYPE3
+    }
 
     @ParameterizedTest
     @MethodSource("incorrectConfigs")
@@ -25,7 +32,7 @@ class BitSetEncoderTest {
         BitEncoder.Config config = new BitEncoder.Config(store, 40, 0, bitShift, bitsCount);
 
         // when
-        Throwable thrown = catchThrowable(() -> new BitSetEncoder(config));
+        Throwable thrown = catchThrowable(() -> new EnumBitSetEncoder<TestType>(config, enumIndexer()));
 
         // then
         assertThat(thrown)
@@ -39,6 +46,18 @@ class BitSetEncoderTest {
         );
     }
 
+    @Test
+    void nullEnumIndexer() {
+        // given
+        BitEncoder.Config config = new BitEncoder.Config(store, 2, 0, 0, 31);
+
+        // when
+        Throwable thrown = catchThrowable(() -> new EnumBitSetEncoder<>(config, null));
+
+        // then
+        assertThat(thrown).isInstanceOf(NullPointerException.class);
+    }
+
     @ParameterizedTest
     @MethodSource("correctConfigs")
     void correctConfig(int bitShift, int bitsCount) {
@@ -46,7 +65,7 @@ class BitSetEncoderTest {
         BitEncoder.Config config = new BitEncoder.Config(store, 40, 0, bitShift, bitsCount);
 
         // when
-        new BitSetEncoder(config);
+        new EnumBitSetEncoder<TestType>(config, enumIndexer());
 
         // then
         // no exception thrown
@@ -65,63 +84,63 @@ class BitSetEncoderTest {
     void savesDifferentValues() {
         // given
         BitEncoder.Config config = new BitEncoder.Config(store, 1, 0, 0, 10);
-        BitSetEncoder testee = new BitSetEncoder(config);
+        EnumBitSetEncoder<TestType> testee = new EnumBitSetEncoder<TestType>(config, enumIndexer());
 
         // when
-        testee.set(0, 0, true);
-        testee.set(0, 2, true);
+        testee.set(0, TestType.TYPE1, true);
+        testee.set(0, TestType.TYPE3, true);
 
         // then
-        assertThat(testee.get(0, 0)).isTrue();
-        assertThat(testee.get(0, 2)).isTrue();
+        assertThat(testee.get(0, TestType.TYPE1)).isTrue();
+        assertThat(testee.get(0, TestType.TYPE3)).isTrue();
         assertThat(store.getInt(0)).isEqualTo(5);
 
         // when
-        testee.set(0, 0, false);
+        testee.set(0, TestType.TYPE1, false);
 
         // then
-        assertThat(testee.get(0, 0)).isFalse();
-        assertThat(testee.get(0, 2)).isTrue();
+        assertThat(testee.get(0, TestType.TYPE1)).isFalse();
+        assertThat(testee.get(0, TestType.TYPE3)).isTrue();
         assertThat(store.getInt(0)).isEqualTo(4);
     }
 
     @Test
     void bitShiftOverNextInt() {
         // given
-        BitEncoder.Config config = new BitEncoder.Config(store, 2, 0, 12, 30);
-        BitSetEncoder testee = new BitSetEncoder(config);
+        BitEncoder.Config config = new BitEncoder.Config(store, 2, 0, 31, 30);
+        EnumBitSetEncoder<TestType> testee = new EnumBitSetEncoder<TestType>(config, enumIndexer());
 
         // when
-        testee.set(0, 25);
+        testee.set(0, TestType.TYPE2);
 
         // then
-        assertThat(testee.get(0, 25)).isTrue();
+        assertThat(testee.get(0, TestType.TYPE2)).isTrue();
         assertThat(store.getInt(0)).isEqualTo(0);
-        assertThat(store.getInt(1)).isEqualTo(32);
+        assertThat(store.getInt(1)).isEqualTo(1);
     }
 
     @Test
     void savesClearValues() {
         // given
         BitEncoder.Config config = new BitEncoder.Config(store, 1, 0, 0, 4);
-        BitSetEncoder testee = new BitSetEncoder(config);
+        EnumBitSetEncoder<TestType> testee = new EnumBitSetEncoder<TestType>(config, enumIndexer());
 
         // when
-        testee.set(0, 1);
-        testee.set(0, 3);
+        testee.set(0, TestType.TYPE1);
+        testee.set(0, TestType.TYPE3);
 
         // then
-        assertThat(testee.get(0, 1)).isTrue();
-        assertThat(testee.get(0, 3)).isTrue();
-        assertThat(store.getInt(0)).isEqualTo(10);
+        assertThat(testee.get(0, TestType.TYPE1)).isTrue();
+        assertThat(testee.get(0, TestType.TYPE3)).isTrue();
+        assertThat(store.getInt(0)).isEqualTo(5);
 
         // when
-        testee.clear(0, 1);
+        testee.clear(0, TestType.TYPE1);
 
         // then
-        assertThat(testee.get(0, 1)).isFalse();
-        assertThat(testee.get(0, 3)).isTrue();
-        assertThat(store.getInt(0)).isEqualTo(8);
+        assertThat(testee.get(0, TestType.TYPE1)).isFalse();
+        assertThat(testee.get(0, TestType.TYPE3)).isTrue();
+        assertThat(store.getInt(0)).isEqualTo(4);
     }
 
     @ParameterizedTest
@@ -129,13 +148,13 @@ class BitSetEncoderTest {
     void usesCorrectPosition(int recordSize, int positionInRecord, int position, int storePosition) {
         // given
         BitEncoder.Config config = new BitEncoder.Config(store, recordSize, positionInRecord, 0, 1);
-        BitSetEncoder testee = new BitSetEncoder(config);
+        EnumBitSetEncoder<TestType> testee = new EnumBitSetEncoder<TestType>(config, enumIndexer());
 
         // when
-        testee.set(position, 0, true);
+        testee.set(position, TestType.TYPE1, true);
 
         // then
-        assertThat(testee.get(position, 0)).isTrue();
+        assertThat(testee.get(position, TestType.TYPE1)).isTrue();
         assertThat(store.getInt(storePosition)).isEqualTo(1);
     }
 
@@ -155,33 +174,33 @@ class BitSetEncoderTest {
     void incorrectBitPosition(int bitPosition, int bitsCount, String message) {
         // given
         BitEncoder.Config config = new BitEncoder.Config(store, 10, 0, 0, bitsCount);
-        BitSetEncoder testee = new BitSetEncoder(config);
+        EnumBitSetEncoder<TestType> testee = new EnumBitSetEncoder<>(config, k -> bitPosition);
 
         // when then
-        assertThatThrownBy(() -> testee.set(0, bitPosition, true))
+        assertThatThrownBy(() -> testee.set(0, TestType.TYPE1, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(message);
 
         // when then
-        assertThatThrownBy(() -> testee.set(0, bitPosition))
+        assertThatThrownBy(() -> testee.set(0, TestType.TYPE1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(message);
 
         // when then
-        assertThatThrownBy(() -> testee.clear(0, bitPosition))
+        assertThatThrownBy(() -> testee.clear(0, TestType.TYPE1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(message);
 
         // when then
-        assertThatThrownBy(() -> testee.get(0, bitPosition))
+        assertThatThrownBy(() -> testee.get(0, TestType.TYPE1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(message);
     }
 
     private static Stream<Arguments> incorrectBitPositions() {
         return Stream.of(
-                Arguments.of(-1, 10, "Bit Position must be between [0, 9]"),
-                Arguments.of(10, 10, "Bit Position must be between [0, 9]")
+                Arguments.of(-1, 10, "Enum Value must be between [0, 9]"),
+                Arguments.of(10, 10, "Enum Value must be between [0, 9]")
         );
     }
 
@@ -193,13 +212,13 @@ class BitSetEncoderTest {
 
         store.setInt(position, previousStoreValue);
         BitEncoder.Config config = new BitEncoder.Config(store, 1, 0, bitShift, 5);
-        BitSetEncoder testee = new BitSetEncoder(config);
+        EnumBitSetEncoder<TestType> testee = new EnumBitSetEncoder<>(config, k -> bitPosition);
 
         // when
-        testee.set(position, bitPosition, value);
+        testee.set(position, TestType.TYPE1, value);
 
         // then
-        assertThat(testee.get(position, bitPosition)).isEqualTo(value);
+        assertThat(testee.get(position, TestType.TYPE1)).isEqualTo(value);
         assertThat(store.getInt(position)).isEqualTo(nextStoreValue);
     }
 
