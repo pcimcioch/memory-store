@@ -3,22 +3,39 @@ package com.github.pcimcioch.memorystore.encoder;
 import static java.lang.Double.doubleToRawLongBits;
 import static java.lang.Double.longBitsToDouble;
 
-// TODO javadocs
+/**
+ * Stores double precision float number {@link Double} on 64 bits of memory
+ */
 public class DoubleEncoder extends BitEncoder {
 
     public static final int BIT_COUNT = 64;
     public static final int MAX_LAST_BIT = 64;
 
+    /**
+     * {@inheritDoc}
+     */
     public DoubleEncoder(Config config) {
         super(config);
     }
 
-    public double get(long index) {
-        return longBitsToDouble(store.getLong(storeIndex(index)));
+    /**
+     * Returns double from given index
+     *
+     * @param position index of the record
+     * @return double value
+     */
+    public double get(long position) {
+        return longBitsToDouble(store.getLong(storeIndex(position)));
     }
 
-    public void set(long index, double value) {
-        store.setLong(storeIndex(index), doubleToRawLongBits(value));
+    /**
+     * Sets double for record of given index
+     *
+     * @param position index of the record
+     * @param value    double value
+     */
+    public void set(long position, double value) {
+        store.setLong(storeIndex(position), doubleToRawLongBits(value));
     }
 
     @Override

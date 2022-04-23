@@ -4,7 +4,9 @@ import java.util.Objects;
 
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
-// TODO javadocs
+/**
+ * Stores signed integer on 1-31 bits of memory
+ */
 public class SignedIntegerEncoder extends BitEncoder {
 
     public static final int MIN_BIT_COUNT = 1;
@@ -16,6 +18,12 @@ public class SignedIntegerEncoder extends BitEncoder {
     private final int mask;
     private final String incorrectValueException;
 
+    /**
+     * Constructor
+     *
+     * @param config   configuration describing memory layout
+     * @param minValue min value that can be stored in this signed integer
+     */
     public SignedIntegerEncoder(Config config, int minValue) {
         super(config);
 
@@ -27,10 +35,22 @@ public class SignedIntegerEncoder extends BitEncoder {
         this.incorrectValueException = String.format("Value must be between [%d, %d]", this.minValue, this.maxValue);
     }
 
+    /**
+     * Returns integer from given index
+     *
+     * @param position index of the record
+     * @return integer value
+     */
     public int get(long position) {
         return ((store.getInt(storeIndex(position)) & mask) >>> bitShift) + minValue;
     }
 
+    /**
+     * Sets integer for record of given index
+     *
+     * @param position index of the record
+     * @param value    integer value
+     */
     public void set(long position, int value) {
         assertArgument(value >= minValue && value <= maxValue, incorrectValueException);
         store.setPartialInt(storeIndex(position), (value - minValue) << bitShift, mask);

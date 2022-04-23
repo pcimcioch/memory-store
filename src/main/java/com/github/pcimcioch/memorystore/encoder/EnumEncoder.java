@@ -2,7 +2,11 @@ package com.github.pcimcioch.memorystore.encoder;
 
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
-// TODO javadocs
+/**
+ * Stores enum {@link Enum} on 1-31 bits of memory
+ *
+ * @param <E> enum type
+ */
 public class EnumEncoder<E extends Enum<E>> extends EnumEncoderBase<E> {
 
     public static final int MIN_BIT_COUNT = 1;
@@ -13,6 +17,13 @@ public class EnumEncoder<E extends Enum<E>> extends EnumEncoderBase<E> {
     private final int mask;
     private final String incorrectValueException;
 
+    /**
+     * Constructor
+     *
+     * @param config      configuration describing memory layout
+     * @param enumFactory how to create enum from signed integer
+     * @param enumIndexer how to create signed integer from enum value
+     */
     public EnumEncoder(Config config, IntToEnumFunction<E> enumFactory, EnumToIntFunction<E> enumIndexer) {
         super(config, enumFactory, enumIndexer);
 
@@ -22,11 +33,23 @@ public class EnumEncoder<E extends Enum<E>> extends EnumEncoderBase<E> {
         this.incorrectValueException = String.format("Enum Value must be between [0, %d]", this.maxValue);
     }
 
+    /**
+     * Returns enum from given index
+     *
+     * @param position index of the record
+     * @return enum value
+     */
     public E get(long position) {
         int valueIndex = (store.getInt(storeIndex(position)) & mask) >>> bitShift;
         return valueOf(valueIndex);
     }
 
+    /**
+     * Sets enum for record of given index
+     *
+     * @param position index of the record
+     * @param value    enum value
+     */
     public void set(long position, E value) {
         int valueIndex = indexOf(value);
         assertArgument(valueIndex >= 0 && valueIndex <= maxValue, incorrectValueException);

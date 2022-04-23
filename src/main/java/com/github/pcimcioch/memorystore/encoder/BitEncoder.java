@@ -6,6 +6,9 @@ import java.util.Objects;
 
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
+/**
+ * BitEncoder stores data on fixed number of bits in the memory
+ */
 public abstract class BitEncoder implements Encoder {
 
     protected final IntStore store;
@@ -14,6 +17,11 @@ public abstract class BitEncoder implements Encoder {
     protected final int bitsCount;
     protected final int bitShift;
 
+    /**
+     * Constructor
+     *
+     * @param config configuration describing memory layout
+     */
     protected BitEncoder(Config config) {
         assertArgument(config.bitsCount() >= minBits() && config.bitsCount() <= maxBits(), "Bits Count outside of defined bounds");
         assertArgument(config.bitShift() + config.bitsCount() <= maxLastBit(), "Bit Shift over a limit");
@@ -25,18 +33,38 @@ public abstract class BitEncoder implements Encoder {
         this.bitShift = config.bitShift();
     }
 
+    /**
+     * Size of the whole record in bytes
+     *
+     * @return record size
+     */
     public int recordSize() {
         return recordSize;
     }
 
+    /**
+     * Position of the first byte in the record belonging to this encoder. 0-indexed
+     *
+     * @return position of the first byte in the record
+     */
     public int positionInRecord() {
         return positionInRecord;
     }
 
+    /**
+     * How many bits are occupied by this encoder to store data
+     *
+     * @return bits count
+     */
     public int bitsCount() {
         return bitsCount;
     }
 
+    /**
+     * Position of the first bit in the first byte belonging to this encoder. 0-indexed
+     *
+     * @return position of the first bit in the first byte
+     */
     public int bitShift() {
         return bitShift;
     }
@@ -82,6 +110,15 @@ public abstract class BitEncoder implements Encoder {
         private final int bitShift;
         private final int bitsCount;
 
+        /**
+         * Constructor
+         *
+         * @param store            where data is stored
+         * @param recordSize       size of the whole record in bytes
+         * @param positionInRecord position of the first byte in the record belonging to this encoder. 0-indexed
+         * @param bitShift         position of the first bit in the first byte belonging to this encoder. 0-indexed
+         * @param bitsCount        how many bits are occupied by this encoder to store data
+         */
         public Config(IntStore store, int recordSize, int positionInRecord, int bitShift, int bitsCount) {
             assertArgument(recordSize > 0, "Record size must be greater then 0");
             assertArgument(positionInRecord >= 0, "Position in record must be greater or equal zero");
@@ -96,22 +133,45 @@ public abstract class BitEncoder implements Encoder {
             this.bitsCount = bitsCount;
         }
 
+        /**
+         * @return where data is stored
+         */
         public IntStore store() {
             return store;
         }
 
+        /**
+         * Size of the whole record in bytes
+         *
+         * @return record size
+         */
         public int recordSize() {
             return recordSize;
         }
 
+        /**
+         * Position of the first byte in the record belonging to this encoder. 0-indexed
+         *
+         * @return position of the first byte in the record
+         */
         public int positionInRecord() {
             return positionInRecord;
         }
 
+        /**
+         * Position of the first bit in the first byte belonging to this encoder. 0-indexed
+         *
+         * @return position of the first bit in the first byte
+         */
         public int bitShift() {
             return bitShift;
         }
 
+        /**
+         * How many bits are occupied by this encoder to store data
+         *
+         * @return bits count
+         */
         public int bitsCount() {
             return bitsCount;
         }

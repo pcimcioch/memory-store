@@ -6,7 +6,11 @@ import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-// TODO javadocs
+/**
+ * Header is a representation of a data type
+ *
+ * @param <T> Each header instance is supported by and encoder that encoder given type in the memory store
+ */
 public abstract class Header<T extends Encoder> {
 
     private final String name;
@@ -15,6 +19,9 @@ public abstract class Header<T extends Encoder> {
         this.name = requireNonNull(name);
     }
 
+    /**
+     * @return name of the header
+     */
     public String name() {
         return name;
     }

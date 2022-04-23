@@ -1,21 +1,38 @@
 package com.github.pcimcioch.memorystore.encoder;
 
-// TODO javadocs
+/**
+ * Stores signed integer {@link Integer} on 32 bits of memory
+ */
 public class IntEncoder extends BitEncoder {
 
     public static final int BIT_COUNT = 32;
     public static final int MAX_LAST_BIT = 32;
 
+    /**
+     * {@inheritDoc}
+     */
     public IntEncoder(Config config) {
         super(config);
     }
 
-    public int get(long index) {
-        return store.getInt(storeIndex(index));
+    /**
+     * Returns integer from given index
+     *
+     * @param position index of the record
+     * @return integer value
+     */
+    public int get(long position) {
+        return store.getInt(storeIndex(position));
     }
 
-    public void set(long index, int value) {
-        store.setInt(storeIndex(index), value);
+    /**
+     * Sets integer for record of given index
+     *
+     * @param position index of the record
+     * @param value    integer value
+     */
+    public void set(long position, int value) {
+        store.setInt(storeIndex(position), value);
     }
 
     @Override
