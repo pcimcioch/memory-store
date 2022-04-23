@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
+// TODO javadocs
 public class ObjectDirectEncoder<T> implements Encoder {
 
     private final ObjectStore<T> store;

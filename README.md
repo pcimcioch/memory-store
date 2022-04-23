@@ -313,7 +313,7 @@ Header.enumBitSetMaxSize("headerName", 10, enumIndexer); // store boolean for gi
 ### Lists
 Lists are not implemented yet
 
-[//]: # (TODO Implement)
+[//]: # (TODO describe)
 
 ### Memory Layout
 When you define multiple fields in the table, they have to be somehow lied out in the memory. By default, 

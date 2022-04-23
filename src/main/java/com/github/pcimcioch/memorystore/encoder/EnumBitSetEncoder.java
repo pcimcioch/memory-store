@@ -2,6 +2,7 @@ package com.github.pcimcioch.memorystore.encoder;
 
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
+// TODO javadocs
 public class EnumBitSetEncoder<E extends Enum<E>> extends EnumEncoderBase<E> {
 
     public static final int MIN_BIT_COUNT = 1;

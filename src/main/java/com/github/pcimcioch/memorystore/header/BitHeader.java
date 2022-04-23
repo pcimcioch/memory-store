@@ -8,6 +8,7 @@ import java.util.function.Function;
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 import static java.util.Objects.requireNonNull;
 
+// TODO javadocs
 public class BitHeader<T extends BitEncoder> extends Header<T> {
 
     private final int bitsCount;

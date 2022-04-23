@@ -2,6 +2,7 @@ package com.github.pcimcioch.memorystore.encoder;
 
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
+// TODO javadocs
 public class BitSetEncoder extends BitEncoder {
 
     public static final int MIN_BIT_COUNT = 1;

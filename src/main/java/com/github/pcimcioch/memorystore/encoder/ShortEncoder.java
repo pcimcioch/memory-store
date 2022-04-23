@@ -1,7 +1,6 @@
 package com.github.pcimcioch.memorystore.encoder;
 
-import java.util.Objects;
-
+// TODO javadocs
 public class ShortEncoder extends BitEncoder {
 
     public static final int BIT_COUNT = 16;

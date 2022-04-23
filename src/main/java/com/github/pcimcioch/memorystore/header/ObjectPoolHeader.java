@@ -11,6 +11,7 @@ import static com.github.pcimcioch.memorystore.encoder.UnsignedIntegerEncoder.MA
 import static com.github.pcimcioch.memorystore.encoder.UnsignedIntegerEncoder.MIN_BIT_COUNT;
 import static java.util.Objects.requireNonNull;
 
+// TODO javadocs
 public class ObjectPoolHeader<T> extends Header<ObjectPoolEncoder<T>> {
 
     private static final String POOL_INDEX_SUFFIX = "-index";

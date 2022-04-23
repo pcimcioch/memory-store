@@ -3,6 +3,7 @@ package com.github.pcimcioch.memorystore.encoder;
 import static java.lang.Double.doubleToRawLongBits;
 import static java.lang.Double.longBitsToDouble;
 
+// TODO javadocs
 public class DoubleEncoder extends BitEncoder {
 
     public static final int BIT_COUNT = 64;
