@@ -9,6 +9,7 @@ import com.github.pcimcioch.memorystore.encoder.EnumBitSetEncoder;
 import com.github.pcimcioch.memorystore.encoder.EnumEncoder;
 import com.github.pcimcioch.memorystore.encoder.FloatEncoder;
 import com.github.pcimcioch.memorystore.encoder.IntEncoder;
+import com.github.pcimcioch.memorystore.encoder.ListEncoder;
 import com.github.pcimcioch.memorystore.encoder.LongEncoder;
 import com.github.pcimcioch.memorystore.encoder.ShortEncoder;
 import com.github.pcimcioch.memorystore.encoder.SignedIntegerEncoder;
@@ -501,6 +502,57 @@ class HeadersTest {
     void poolSizeIncorrect(long size) {
         // when
         Throwable thrown = catchThrowable(() -> Headers.poolOfSize(POOL_NAME, size));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Number of possible values must be between 2 and 2147483648");
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 10, 31})
+    void listOnBitsCorrect(int bitsCount) {
+        // when
+        BitHeader<ListEncoder> header = Headers.listOnBits(HEADER_NAME, bitsCount);
+
+        // then
+        assertHeader(header, bitsCount);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-100, -1, 0, 32})
+    void listOnBitsIncorrect(int bitsCount) {
+        // when
+        Throwable thrown = catchThrowable(() -> Headers.listOnBits(HEADER_NAME, bitsCount));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Bits Count must be between 1 and 31");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "2,          1",
+            "3,          2",
+            "7,          3",
+            "8,          3",
+            "9,          4",
+            "2147483648, 31"
+    })
+    void listSizeCorrect(long size, int bitsCount) {
+        // when
+        BitHeader<ListEncoder> header = Headers.listOfSize(HEADER_NAME, size);
+
+        // then
+        assertHeader(header, bitsCount);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {-100, -1, 0, 1, 2147483649L})
+    void listSizeIncorrect(long size) {
+        // when
+        Throwable thrown = catchThrowable(() -> Headers.listOfSize(HEADER_NAME, size));
 
         // then
         assertThat(thrown)

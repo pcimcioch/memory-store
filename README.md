@@ -172,12 +172,12 @@ Library is available in Central Maven Repository
 <dependency>
   <groupId>com.github.pcimcioch</groupId>
   <artifactId>memory-store</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 
 ```kotlin
-implementation("com.github.pcimcioch:memory-store:1.1.0")
+implementation("com.github.pcimcioch:memory-store:1.2.0")
 ```
 
 ## Similar Solutions
@@ -307,13 +307,15 @@ Headers.bitSet("headerName", 10); // store 10 boolean values, indexed in range [
 Similar to BitSets, but an enum can be used as an index
 ```java
 Headers.enumBitSet("headerName", MyEnum.class); // store booleans for all possible non-null values of MyEnum enum
-Header.enumBitSetMaxSize("headerName", 10, enumIndexer); // store boolean for given number of bits. In this case 10 bits, so 10 different values can be stored. enumIndexer is used to translate enum value to signed integer that will show which boolean should be set
+Headers.enumBitSetMaxSize("headerName", 10, enumIndexer); // store boolean for given number of bits. In this case 10 bits, so 10 different values can be stored. enumIndexer is used to translate enum value to signed integer that will show which boolean should be set
 ```
 
 ### Lists
-Lists are not implemented yet
-
-[//]: # (TODO describe)
+Records can be connected into linked circular lists.
+```java
+Headers.listOnBits("headerName", 16); // store data that can be used to create list on records from index 0 to 2^16-1
+Headers.listOfSize("headerName, 1000"); // store data that can be used to create list on records from index 0 to 999
+```
 
 ### Memory Layout
 When you define multiple fields in the table, they have to be somehow lied out in the memory. By default, 

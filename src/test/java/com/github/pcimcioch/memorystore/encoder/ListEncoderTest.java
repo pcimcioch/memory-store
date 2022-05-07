@@ -3,18 +3,72 @@ package com.github.pcimcioch.memorystore.encoder;
 import com.github.pcimcioch.memorystore.encoder.ListEncoder.ListIterator;
 import com.github.pcimcioch.memorystore.store.IntStore;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 class ListEncoderTest {
 
+    private static final String BITS_COUNT_EX = "Bits Count outside of defined bounds";
+    private static final String BIT_SHIFT_EX = "Bit Shift over a limit";
+
     private final IntStore store = new IntStore();
+
+    @ParameterizedTest
+    @MethodSource("incorrectConfigs")
+    void incorrectConfig(int bitShift, int bitsCount, String message) {
+        // given
+        BitEncoder.Config config = new BitEncoder.Config(store, 2, 0, bitShift, bitsCount);
+
+        // when
+        Throwable thrown = catchThrowable(() -> new ListEncoder(config));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage(message);
+    }
+
+    private static Stream<Arguments> incorrectConfigs() {
+        return Stream.of(
+                Arguments.of(15, 18, BIT_SHIFT_EX),
+                Arguments.of(2, 31, BIT_SHIFT_EX),
+                Arguments.of(32, 1, BIT_SHIFT_EX),
+                Arguments.of(0, 64, BITS_COUNT_EX),
+                Arguments.of(0, 32, BITS_COUNT_EX)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("correctConfigs")
+    void correctConfig(int bitShift, int bitsCount) {
+        // given
+        BitEncoder.Config config = new BitEncoder.Config(store, 2, 0, bitShift, bitsCount);
+
+        // when
+        new ListEncoder(config);
+
+        // then
+        // no exception thrown
+    }
+
+    private static Stream<Arguments> correctConfigs() {
+        return Stream.of(
+                Arguments.of(15, 17),
+                Arguments.of(1, 31),
+                Arguments.of(0, 31),
+                Arguments.of(31, 1)
+        );
+    }
 
     @Test
     void init() {

@@ -12,6 +12,7 @@ import com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.EnumToIntFunctio
 import com.github.pcimcioch.memorystore.encoder.EnumEncoderBase.IntToEnumFunction;
 import com.github.pcimcioch.memorystore.encoder.FloatEncoder;
 import com.github.pcimcioch.memorystore.encoder.IntEncoder;
+import com.github.pcimcioch.memorystore.encoder.ListEncoder;
 import com.github.pcimcioch.memorystore.encoder.LongEncoder;
 import com.github.pcimcioch.memorystore.encoder.ShortEncoder;
 import com.github.pcimcioch.memorystore.encoder.SignedIntegerEncoder;
@@ -266,6 +267,32 @@ public final class Headers {
         assertNumberOfValuesInRange(size, UnsignedIntegerEncoder.MIN_BIT_COUNT, UnsignedIntegerEncoder.MAX_BIT_COUNT);
 
         return new PoolDefinition(name, Utils.countBits(size));
+    }
+
+    /**
+     * Connect records in a list.
+     *
+     * @param name      name of the list header
+     * @param bitsCount number of bits on which each record can store index of the next element
+     * @return new list header
+     */
+    public static BitHeader<ListEncoder> listOnBits(String name, int bitsCount) {
+        assertBitsCount(bitsCount, ListEncoder.MIN_BIT_COUNT, ListEncoder.MAX_BIT_COUNT);
+
+        return new BitHeader<>(name, bitsCount, ListEncoder.MAX_LAST_BIT, ListEncoder::new);
+    }
+
+    /**
+     * Connect records in a list.
+     *
+     * @param name name of the list header
+     * @param size maximum number of records that can be stored in a list
+     * @return new list header
+     */
+    public static BitHeader<ListEncoder> listOfSize(String name, long size) {
+        assertNumberOfValuesInRange(size, ListEncoder.MIN_BIT_COUNT, ListEncoder.MAX_BIT_COUNT);
+
+        return new BitHeader<>(name, Utils.countBits(size), ListEncoder.MAX_LAST_BIT, ListEncoder::new);
     }
 
     /**

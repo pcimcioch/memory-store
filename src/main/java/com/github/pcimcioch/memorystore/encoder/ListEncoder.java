@@ -8,9 +8,16 @@ import java.util.stream.StreamSupport;
 
 import static com.github.pcimcioch.memorystore.util.Utils.assertArgument;
 
-// TODO javadocs
-// TODO add bit decoder tests
-// TODO add to Headers
+/**
+ * Allows to connect records in an ordered cyclic list.
+ * Elements are kept in order. There is no distinct beginning and end of the list. It is circular.
+ * Traversing can start from any element, and it ends when you reach the starting element.
+ * Because of that, each element can belong to only one list, and it can't be repeated.
+ * <br>
+ * <p>
+ * It is very important that each new record must be either initialized using {@link #init(long)} method, or added to the
+ * existing list using {@link #addNext(long, long)} or {@link #addPrevious(long, long)}
+ */
 public class ListEncoder extends BitEncoder {
 
     public static final int MIN_BIT_COUNT = 1;
@@ -21,6 +28,9 @@ public class ListEncoder extends BitEncoder {
     private final int mask;
     private final String incorrectValueException;
 
+    /**
+     * {@inheritDoc}
+     */
     public ListEncoder(BitEncoder.Config config) {
         super(config);
         this.maxValue = (1 << this.bitsCount) - 1;
@@ -29,10 +39,39 @@ public class ListEncoder extends BitEncoder {
         this.incorrectValueException = String.format("Value must be between [0, %d]", this.maxValue);
     }
 
+    /**
+     * Initializes new list. It will be one element list.
+     *
+     * @param elementPosition position to initialize
+     */
     public void init(long elementPosition) {
         setNext(elementPosition, elementPosition);
     }
 
+    /**
+     * Adds new element to the list on next position.
+     * Element that is added to the list doesn't need to be initialized.
+     * Element that is added to the list can't be part of another list. It can only be uninitialized or be in one-element list.
+     * If you need to move an element from one list to another, first remove it using {@link #remove(long)}.
+     * <br>
+     * <p>
+     * Adding as next is more efficient than adding as previous using
+     * {@link #addPrevious(long, long)}
+     * <br>
+     * <p>
+     * For example, for list:
+     * <pre>
+     *     0 -&gt; 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5
+     *     addNext(2, 6)
+     *     </pre>
+     * Will create list:
+     * <pre>
+     *     0 -&gt; 1 -&gt; 2 -&gt; 6 -&gt; 3 -&gt; 4 -&gt; 5
+     * </pre>
+     *
+     * @param listPosition        position of existing list
+     * @param nextElementPosition element to add
+     */
     public void addNext(long listPosition, long nextElementPosition) {
         long next = next(listPosition);
 
@@ -40,6 +79,30 @@ public class ListEncoder extends BitEncoder {
         setNext(nextElementPosition, next);
     }
 
+    /**
+     * Adds new element to the list on previous position.
+     * Element that is added to the list doesn't need to be initialized.
+     * Element that is added to the list can't be part of another list. If you need to move an element from one list to another,
+     * first remove it using {@link #remove(long)}.
+     * <br>
+     * <p>
+     * Adding as previous is less efficient than adding as next using
+     * {@link #addNext(long, long)}
+     * <br>
+     * <p>
+     * For example, for list:
+     * <pre>
+     *     0 -&gt; 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5
+     *     addPrevious(2, 6)
+     * </pre>
+     * Will create list:
+     * <pre>
+     *     0 -&gt; 1 -&gt; 6 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5
+     * </pre>
+     *
+     * @param listPosition            position of existing list
+     * @param previousElementPosition element to add
+     */
     public void addPrevious(long listPosition, long previousElementPosition) {
         long previous = previous(listPosition);
 
@@ -47,6 +110,24 @@ public class ListEncoder extends BitEncoder {
         setNext(previousElementPosition, listPosition);
     }
 
+    /**
+     * Removes element from its current list. The removed element will create new, one element list.
+     * After element was removed it can be safely added to different list.
+     * <br>
+     * <p>
+     * For example, for list:
+     * <pre>
+     *     0 -&gt; 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5
+     *     remove(2)
+     * </pre>
+     * Will create two lists:
+     * <pre>
+     *     0 -&gt; 1 -&gt; 3 -&gt; 4 -&gt; 5
+     *     2
+     * </pre>
+     *
+     * @param listPosition element to remove
+     */
     public void remove(long listPosition) {
         long next = next(listPosition);
         long previous = previous(listPosition);
@@ -55,6 +136,24 @@ public class ListEncoder extends BitEncoder {
         setNext(listPosition, listPosition);
     }
 
+    /**
+     * Merges two lists.
+     * <br>
+     * <p>
+     * For example, for lists:
+     * <pre>
+     *     0 -&gt; 1 -&gt; 2
+     *     3 -&gt; 4
+     *     merge(1, 3)
+     * </pre>
+     * Will create one list:
+     * <pre>
+     *     0 -&gt; 1 -&gt; 3 -&gt; 4 -&gt; 2
+     * </pre>
+     *
+     * @param firstListPosition  first list element
+     * @param secondListPosition second list element
+     */
     public void merge(long firstListPosition, long secondListPosition) {
         long firstNext = next(firstListPosition);
         long secondPrevious = previous(secondListPosition);
@@ -63,10 +162,48 @@ public class ListEncoder extends BitEncoder {
         setNext(secondPrevious, firstNext);
     }
 
+    /**
+     * Return next element in the list. For one element lists, it will return passed listPosition.
+     * For uninitialized elements, behaviour is undefined
+     * <br>
+     * <p>
+     * For example, for lists:
+     * <pre>
+     *     0 -&gt; 1 -&gt; 2
+     *     3
+     *
+     *     assert next(0) == 1
+     *     assert next(1) == 2
+     *     assert next(2) == 0
+     *     assert next(3) == 3
+     * </pre>
+     *
+     * @param listPosition element position
+     * @return next element
+     */
     public long next(long listPosition) {
         return getNext(listPosition);
     }
 
+    /**
+     * Return previous element in the list. For one element lists, it will return passed listPosition.
+     * For uninitialized elements, behaviour is undefined
+     * <br>
+     * <p>
+     * For example, for lists:
+     * <pre>
+     *     0 -&gt; 1 -&gt; 2
+     *     3
+     *
+     *     assert previous(0) == 2
+     *     assert previous(1) == 0
+     *     assert previous(2) == 1
+     *     assert previous(3) == 3
+     * </pre>
+     *
+     * @param listPosition element position
+     * @return next element
+     */
     public long previous(long listPosition) {
         long previous = listPosition;
         for (long i = next(listPosition); i != listPosition; i = next(i)) {
@@ -76,14 +213,37 @@ public class ListEncoder extends BitEncoder {
         return previous;
     }
 
+    /**
+     * Returns iterator that can be used to traverse whole list. Even though the list is circular, the iterator will stop
+     * after traversing all elements.
+     * This iterator supports deleting elements from the list. See {@link #remove(long)} for details on what it means to
+     * remove an element from the list.
+     *
+     * @param listPosition position to start iteration
+     * @return iterator
+     */
     public ListIterator iterator(long listPosition) {
         return new ListIterator(listPosition);
     }
 
+    /**
+     * Returns iterable that can be used to traverse whole list. Even though the list is circular, the iterator
+     * returned by this iterable will stop after traversing all elements.
+     *
+     * @param listPosition position to start iteration
+     * @return iterable
+     */
     public Iterable<Long> iterable(long listPosition) {
         return () -> iterator(listPosition);
     }
 
+    /**
+     * Returns stream that can be used to traverse whole list. Even though the list is circular, the stream
+     * will stop after traversing all elements.
+     *
+     * @param listPosition position to start iteration
+     * @return stream
+     */
     public LongStream stream(long listPosition) {
         return StreamSupport.longStream(new ListSpliterator(listPosition), false);
     }
